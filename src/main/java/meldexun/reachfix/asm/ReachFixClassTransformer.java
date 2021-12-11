@@ -18,7 +18,7 @@ public class ReachFixClassTransformer extends AbstractClassTransformer implement
 	@Override
 	protected void registerTransformers() {
 		// @formatter:off
-		this.registerMethodTransformer("", "", "", "net/minecraft/client/renderer/EntityRenderer", "getMouseOver", "(F)V", methodNode -> {
+		this.registerMethodTransformer("buq", "a", "(F)V", "net/minecraft/client/renderer/EntityRenderer", "getMouseOver", "(F)V", methodNode -> {
 			AbstractInsnNode popNode1 = new LabelNode();
 
 			methodNode.instructions.insert(ASMUtil.listOf(
@@ -30,11 +30,11 @@ public class ReachFixClassTransformer extends AbstractClassTransformer implement
 				popNode1
 			));
 		});
-		this.registerMethodTransformer("", "", "", "net/minecraft/network/NetHandlerPlayServer", "processUseEntity", "(Lnet/minecraft/network/play/client/CPacketUseEntity;)V", methodNode -> {
-			AbstractInsnNode targetNode1 = ASMUtil.findFirstMethodCall(methodNode, Opcodes.INVOKEVIRTUAL, "", "", "", "net/minecraft/entity/player/EntityPlayerMP", "canEntityBeSeen", "(Lnet/minecraft/entity/Entity;)Z");
+		this.registerMethodTransformer("pa", "a", "(Lli;)V", "net/minecraft/network/NetHandlerPlayServer", "processUseEntity", "(Lnet/minecraft/network/play/client/CPacketUseEntity;)V", methodNode -> {
+			AbstractInsnNode targetNode1 = ASMUtil.findFirstMethodCall(methodNode, Opcodes.INVOKEVIRTUAL, "oq", "D", "(Lvg;)Z", "net/minecraft/entity/player/EntityPlayerMP", "canEntityBeSeen", "(Lnet/minecraft/entity/Entity;)Z");
 			targetNode1 = ASMUtil.findLastInsnByType(methodNode, AbstractInsnNode.LABEL, targetNode1);
 			AbstractInsnNode popNode11 = new LabelNode();
-			AbstractInsnNode popNode12 = ASMUtil.findFirstMethodCall(methodNode, Opcodes.INVOKEVIRTUAL, "", "", "", "net/minecraft/entity/player/EntityPlayerMP", "getDistanceSq", "(Lnet/minecraft/entity/Entity;)D");
+			AbstractInsnNode popNode12 = ASMUtil.findFirstMethodCall(methodNode, Opcodes.INVOKEVIRTUAL, "oq", "h", "(Lvg;)D", "net/minecraft/entity/player/EntityPlayerMP", "getDistanceSq", "(Lnet/minecraft/entity/Entity;)D");
 			popNode12 = ASMUtil.findFirstInsnByType(methodNode, AbstractInsnNode.LABEL, popNode12);
 
 			methodNode.instructions.insert(targetNode1, ASMUtil.listOf(
