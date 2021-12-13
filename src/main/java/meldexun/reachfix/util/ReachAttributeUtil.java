@@ -11,8 +11,8 @@ import net.minecraft.world.GameType;
 
 public class ReachAttributeUtil {
 
-	private static final UUID REACH_UUID = UUID.fromString("");
-	private static final UUID REACH_UUID_CREATIVE = UUID.fromString("");
+	private static final UUID REACH_UUID = UUID.fromString("00d4860f-b487-4402-b424-373a52566330");
+	private static final UUID REACH_UUID_CREATIVE = UUID.fromString("d63e6fe7-57ed-4154-b1a3-eec4136a53e5");
 
 	public static void onGameModeChanged(EntityPlayer player, GameType oldGameMode, GameType newGameMode) {
 		if (oldGameMode == newGameMode) {
