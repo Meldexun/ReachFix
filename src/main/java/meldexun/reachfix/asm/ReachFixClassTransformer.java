@@ -41,9 +41,8 @@ public class ReachFixClassTransformer extends AbstractClassTransformer implement
 				new FieldInsnNode(Opcodes.GETSTATIC, "meldexun/reachfix/config/ReachFixConfig", "enabled", "Z"),
 				new JumpInsnNode(Opcodes.IFEQ, (LabelNode) popNode11),
 				new VarInsnNode(Opcodes.ALOAD, 0),
-				new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/network/NetHandlerPlayServer", "player", "Lnet/minecraft/entity/player/EntityPlayerMP;"),
 				new VarInsnNode(Opcodes.ALOAD, 3),
-				new MethodInsnNode(Opcodes.INVOKESTATIC, "meldexun/reachfix/asm/hook/NetHandlerPlayServerHook", "isEntityInRange", "(Lnet/minecraft/entity/player/EntityPlayerMP;Lnet/minecraft/entity/Entity;)Z", false),
+				new MethodInsnNode(Opcodes.INVOKESTATIC, "meldexun/reachfix/asm/hook/NetHandlerPlayServerHook", "isEntityInRange", "(Lnet/minecraft/network/NetHandlerPlayServer;Lnet/minecraft/entity/Entity;)Z", false),
 				new JumpInsnNode(Opcodes.IFNE, (LabelNode) popNode12),
 				new InsnNode(Opcodes.RETURN),
 				popNode11
@@ -52,19 +51,15 @@ public class ReachFixClassTransformer extends AbstractClassTransformer implement
 		this.registerMethodTransformer("bsc", "a", "(Lams;)V", "net/minecraft/client/network/NetworkPlayerInfo", "setGameType", "(Lnet/minecraft/world/GameType;)V", methodNode -> {
 			methodNode.instructions.insert(ASMUtil.listOf(
 				new VarInsnNode(Opcodes.ALOAD, 0),
-				new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/client/network/NetworkPlayerInfo", "gameType", "Lnet/minecraft/world/GameType;"),
 				new VarInsnNode(Opcodes.ALOAD, 1),
-				new MethodInsnNode(Opcodes.INVOKESTATIC, "meldexun/reachfix/asm/hook/client/NetworkPlayerInfoHook", "onUpdateGameMode", "(Lnet/minecraft/world/GameType;Lnet/minecraft/world/GameType;)V", false)
+				new MethodInsnNode(Opcodes.INVOKESTATIC, "meldexun/reachfix/asm/hook/client/NetworkPlayerInfoHook", "onUpdateGameMode", "(Lnet/minecraft/client/network/NetworkPlayerInfo;Lnet/minecraft/world/GameType;)V", false)
 			));
 		});
 		this.registerMethodTransformer("or", "a", "(Lams;)V", "net/minecraft/server/management/PlayerInteractionManager", "setGameType", "(Lnet/minecraft/world/GameType;)V", methodNode -> {
 			methodNode.instructions.insert(ASMUtil.listOf(
 				new VarInsnNode(Opcodes.ALOAD, 0),
-				new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/server/management/PlayerInteractionManager", "player", "Lnet/minecraft/entity/player/EntityPlayerMP;"),
-				new VarInsnNode(Opcodes.ALOAD, 0),
-				new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/server/management/PlayerInteractionManager", "gameType", "Lnet/minecraft/world/GameType;"),
 				new VarInsnNode(Opcodes.ALOAD, 1),
-				new MethodInsnNode(Opcodes.INVOKESTATIC, "meldexun/reachfix/asm/hook/PlayerInteractionManagerHook", "onUpdateGameMode", "(Lnet/minecraft/entity/player/EntityPlayerMP;Lnet/minecraft/world/GameType;Lnet/minecraft/world/GameType;)V", false)
+				new MethodInsnNode(Opcodes.INVOKESTATIC, "meldexun/reachfix/asm/hook/PlayerInteractionManagerHook", "onUpdateGameMode", "(Lnet/minecraft/server/management/PlayerInteractionManager;Lnet/minecraft/world/GameType;)V", false)
 			));
 		});
 		// @formatter:on

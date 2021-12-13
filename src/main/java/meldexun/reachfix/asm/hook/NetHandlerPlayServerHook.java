@@ -2,12 +2,14 @@ package meldexun.reachfix.asm.hook;
 
 import meldexun.reachfix.util.ReachAttributeUtil;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.util.math.AxisAlignedBB;
 
 public class NetHandlerPlayServerHook {
 
-	public static boolean isEntityInRange(EntityPlayerMP player, Entity entity) {
+	public static boolean isEntityInRange(NetHandlerPlayServer serverHandler, Entity entity) {
+		EntityPlayer player = serverHandler.player;
 		AxisAlignedBB aabb = entity.getEntityBoundingBox();
 		if (entity.getCollisionBorderSize() != 0.0F) {
 			aabb = aabb.grow(entity.getCollisionBorderSize());
