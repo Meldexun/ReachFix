@@ -75,7 +75,6 @@ jar {
 
     manifest {
         attributes 'FMLCorePlugin': 'meldexun.reachfix.asm.ReachFixPlugin'
-        attributes 'FMLCorePluginContainsFMLMod': 'true'
         attributes 'FMLAT': 'accesstransformer.cfg'
     }
 }
