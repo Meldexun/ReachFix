@@ -31,7 +31,7 @@ public class ReachFix extends DummyModContainer {
 		super(new ModMetadata());
 		ModMetadata meta = this.getMetadata();
 		meta.name = "Reach Fix";
-		meta.version = "1.0.0";
+		meta.version = "1.0.1";
 		meta.modId = MOD_ID;
 		meta.authorList = Arrays.asList("Meldexun");
 		meta.url = "https://github.com/Meldexun/ReachFix";
