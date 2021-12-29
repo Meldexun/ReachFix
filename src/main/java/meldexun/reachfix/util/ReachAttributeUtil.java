@@ -22,7 +22,7 @@ public class ReachAttributeUtil {
 		if (newGameMode == GameType.CREATIVE) {
 			attribute.removeModifier(REACH_UUID);
 			attribute.applyModifier(createReachModifierCreative());
-		} else {
+		} else if (oldGameMode == GameType.CREATIVE) {
 			attribute.removeModifier(REACH_UUID_CREATIVE);
 			attribute.applyModifier(createReachModifier());
 		}
