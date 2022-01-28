@@ -5,6 +5,7 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
+import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
@@ -45,6 +46,18 @@ public class ReachFixClassTransformer extends AbstractClassTransformer implement
 				new JumpInsnNode(Opcodes.IFNE, (LabelNode) popNode12),
 				new InsnNode(Opcodes.RETURN),
 				popNode11
+			));
+		});
+		this.registerMethodTransformer("pa", "a", "(Llp;)V", "net/minecraft/network/NetHandlerPlayServer", "processPlayerDigging", "(Lnet/minecraft/network/play/client/CPacketPlayerDigging;)V", methodNode -> {
+			AbstractInsnNode targetNode1 = ASMUtil.findFirstInsnByType(methodNode, AbstractInsnNode.LDC_INSN);
+			while (!((LdcInsnNode) targetNode1).cst.equals(1.5D)) {
+				targetNode1 = ASMUtil.findFirstInsnByType(methodNode, AbstractInsnNode.LDC_INSN, targetNode1);
+			}
+
+			methodNode.instructions.insert(targetNode1, ASMUtil.listOf(
+				new VarInsnNode(Opcodes.ALOAD, 0),
+				new MethodInsnNode(Opcodes.INVOKESTATIC, "meldexun/reachfix/asm/hook/NetHandlerPlayServerHook", "getEyeHeightMinusOnePointFive", "(Lnet/minecraft/network/NetHandlerPlayServer;)D", false),
+				new InsnNode(Opcodes.DADD)
 			));
 		});
 		this.registerMethodTransformer("bsc", "a", "(Lams;)V", "net/minecraft/client/network/NetworkPlayerInfo", "setGameType", "(Lnet/minecraft/world/GameType;)V", methodNode -> {

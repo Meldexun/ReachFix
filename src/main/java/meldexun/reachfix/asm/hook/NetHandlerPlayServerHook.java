@@ -26,4 +26,8 @@ public class NetHandlerPlayServerHook {
 		return distance < reach + aabbRadius + 1.0D;
 	}
 
+	public static double getEyeHeightMinusOnePointFive(NetHandlerPlayServer serverHandler) {
+		return serverHandler.player.eyeHeight - 1.5D;
+	}
+
 }
