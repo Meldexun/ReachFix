@@ -6,7 +6,7 @@ import meldexun.reachfix.ReachFix;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 
 @IFMLLoadingPlugin.MCVersion("1.12.2")
-@IFMLLoadingPlugin.TransformerExclusions("meldexun.entityculling.asm")
+@IFMLLoadingPlugin.TransformerExclusions("meldexun.reachfix.asm")
 public class ReachFixPlugin implements IFMLLoadingPlugin {
 
 	@Override
