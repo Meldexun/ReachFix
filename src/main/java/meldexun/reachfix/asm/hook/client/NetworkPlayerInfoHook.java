@@ -17,7 +17,7 @@ public class NetworkPlayerInfoHook {
 		if (player == null) {
 			return;
 		}
-		ReachAttributeUtil.onGameModeChanged(player, playerInfo.getGameType(), newGameMode);
+		ReachAttributeUtil.updateBaseReachModifier(player, newGameMode == GameType.CREATIVE);
 	}
 
 }

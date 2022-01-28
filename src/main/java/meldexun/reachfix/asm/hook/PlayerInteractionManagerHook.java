@@ -7,7 +7,7 @@ import net.minecraft.world.GameType;
 public class PlayerInteractionManagerHook {
 
 	public static void onUpdateGameMode(PlayerInteractionManager playerManager, GameType newGameMode) {
-		ReachAttributeUtil.onGameModeChanged(playerManager.player, playerManager.getGameType(), newGameMode);
+		ReachAttributeUtil.updateBaseReachModifier(playerManager.player, newGameMode == GameType.CREATIVE);
 	}
 
 }
