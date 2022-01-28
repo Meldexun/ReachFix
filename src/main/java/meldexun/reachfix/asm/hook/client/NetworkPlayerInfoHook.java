@@ -1,6 +1,6 @@
 package meldexun.reachfix.asm.hook.client;
 
-import meldexun.reachfix.util.ReachAttributeUtil;
+import meldexun.reachfix.util.ReachFixUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.entity.player.EntityPlayer;
@@ -17,7 +17,7 @@ public class NetworkPlayerInfoHook {
 		if (player == null) {
 			return;
 		}
-		ReachAttributeUtil.updateBaseReachModifier(player, newGameMode == GameType.CREATIVE);
+		ReachFixUtil.updateBaseReachModifier(player, newGameMode == GameType.CREATIVE);
 	}
 
 }

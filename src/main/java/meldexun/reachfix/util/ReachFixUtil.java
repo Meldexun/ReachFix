@@ -7,7 +7,7 @@ import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.player.EntityPlayer;
 
-public class ReachAttributeUtil {
+public class ReachFixUtil {
 
 	private static final UUID REACH_UUID = UUID.fromString("00d4860f-b487-4402-b424-373a52566330");
 	private static final String REACH_STRING = ReachFix.MOD_ID + ":base_reach";
@@ -38,15 +38,15 @@ public class ReachAttributeUtil {
 	}
 
 	public static void setEnabled(boolean enabled) {
-		ReachAttributeUtil.enabled = enabled;
+		ReachFixUtil.enabled = enabled;
 	}
 
 	public static void setReach(double reach) {
-		ReachAttributeUtil.reach = reach;
+		ReachFixUtil.reach = reach;
 	}
 
 	public static void setReachCreative(double reachCreative) {
-		ReachAttributeUtil.reachCreative = reachCreative;
+		ReachFixUtil.reachCreative = reachCreative;
 	}
 
 }

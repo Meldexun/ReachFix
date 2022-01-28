@@ -4,7 +4,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import meldexun.reachfix.util.ReachAttributeUtil;
+import meldexun.reachfix.util.ReachFixUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.EntitySelectors;
@@ -67,7 +67,7 @@ public class EntityRendererHook {
 			return null;
 		}
 
-		double reach = ReachAttributeUtil.getBlockReach(mc.player);
+		double reach = ReachFixUtil.getBlockReach(mc.player);
 		RayTraceResult result = viewEntity.rayTrace(reach, partialTicks);
 
 		if (result != null && result.typeOfHit == Type.MISS) {
@@ -89,7 +89,7 @@ public class EntityRendererHook {
 			return null;
 		}
 
-		double reach = ReachAttributeUtil.getEntityReach(mc.player);
+		double reach = ReachFixUtil.getEntityReach(mc.player);
 		Vec3d dir = viewEntity.getLook(partialTicks).scale(reach);
 		AxisAlignedBB aabb = viewEntity.getEntityBoundingBox();
 		aabb = aabb.expand(dir.x, dir.y, dir.z);

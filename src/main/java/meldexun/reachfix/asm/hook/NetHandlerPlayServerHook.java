@@ -1,6 +1,6 @@
 package meldexun.reachfix.asm.hook;
 
-import meldexun.reachfix.util.ReachAttributeUtil;
+import meldexun.reachfix.util.ReachFixUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.NetHandlerPlayServer;
@@ -22,7 +22,7 @@ public class NetHandlerPlayServerHook {
 		double y1 = aabb.minY + y - (player.posY + player.eyeHeight);
 		double z1 = aabb.minZ + z - player.posZ;
 		double distance = Math.sqrt(x1 * x1 + y1 * y1 + z1 * z1);
-		double reach = ReachAttributeUtil.getEntityReach(player);
+		double reach = ReachFixUtil.getEntityReach(player);
 		return distance < reach + aabbRadius + 1.0D;
 	}
 
