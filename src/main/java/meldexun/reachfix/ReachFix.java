@@ -5,23 +5,15 @@ import java.util.Arrays;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 
-import meldexun.reachfix.util.ReachAttributeUtil;
-import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.world.WorldServer;
-import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.DummyModContainer;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.LoadController;
 import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.event.FMLConstructionEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ReachFix extends DummyModContainer {
 
@@ -53,22 +45,6 @@ public class ReachFix extends DummyModContainer {
 	public void onConfigChangedEvent(ConfigChangedEvent.OnConfigChangedEvent event) {
 		if (event.getModID().equals(MOD_ID)) {
 			ConfigManager.sync(MOD_ID, Config.Type.INSTANCE);
-			for (WorldServer world : DimensionManager.getWorlds()) {
-				for (EntityPlayer player : world.playerEntities) {
-					ReachAttributeUtil.onConfigChanged(player);
-				}
-			}
-			if (FMLCommonHandler.instance().getSide().isClient()) {
-				this.onConfigChangedClient();
-			}
-		}
-	}
-
-	@SideOnly(Side.CLIENT)
-	private void onConfigChangedClient() {
-		Minecraft mc = Minecraft.getMinecraft();
-		if (mc.player != null) {
-			ReachAttributeUtil.onConfigChanged(mc.player);
 		}
 	}
 

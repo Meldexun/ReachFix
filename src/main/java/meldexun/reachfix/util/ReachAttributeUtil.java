@@ -28,17 +28,6 @@ public class ReachAttributeUtil {
 		}
 	}
 
-	public static void onConfigChanged(EntityPlayer player) {
-		IAttributeInstance attribute = player.getEntityAttribute(EntityPlayer.REACH_DISTANCE);
-		if (player.isCreative()) {
-			attribute.removeModifier(REACH_UUID_CREATIVE);
-			attribute.applyModifier(createReachModifierCreative());
-		} else {
-			attribute.removeModifier(REACH_UUID);
-			attribute.applyModifier(createReachModifier());
-		}
-	}
-
 	private static AttributeModifier createReachModifier() {
 		return new AttributeModifier(REACH_UUID, ReachFix.MOD_ID + ":base_reach", ReachFixConfig.reach - 4.5D, 0).setSaved(false);
 	}
