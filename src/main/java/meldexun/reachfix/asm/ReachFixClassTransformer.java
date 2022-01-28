@@ -2,7 +2,6 @@ package meldexun.reachfix.asm;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
@@ -22,7 +21,7 @@ public class ReachFixClassTransformer extends AbstractClassTransformer implement
 			AbstractInsnNode popNode1 = new LabelNode();
 
 			methodNode.instructions.insert(ASMUtil.listOf(
-				new FieldInsnNode(Opcodes.GETSTATIC, "meldexun/reachfix/config/ReachFixConfig", "enabled", "Z"),
+				new MethodInsnNode(Opcodes.INVOKESTATIC, "meldexun/reachfix/util/ReachAttributeUtil", "isEnabled", "()Z", false),
 				new JumpInsnNode(Opcodes.IFEQ, (LabelNode) popNode1),
 				new VarInsnNode(Opcodes.FLOAD, 1),
 				new MethodInsnNode(Opcodes.INVOKESTATIC, "meldexun/reachfix/asm/hook/client/EntityRendererHook", "getMouseOver", "(F)V", false),
@@ -38,7 +37,7 @@ public class ReachFixClassTransformer extends AbstractClassTransformer implement
 			popNode12 = ASMUtil.findFirstInsnByType(methodNode, AbstractInsnNode.LABEL, popNode12);
 
 			methodNode.instructions.insert(targetNode1, ASMUtil.listOf(
-				new FieldInsnNode(Opcodes.GETSTATIC, "meldexun/reachfix/config/ReachFixConfig", "enabled", "Z"),
+				new MethodInsnNode(Opcodes.INVOKESTATIC, "meldexun/reachfix/util/ReachAttributeUtil", "isEnabled", "()Z", false),
 				new JumpInsnNode(Opcodes.IFEQ, (LabelNode) popNode11),
 				new VarInsnNode(Opcodes.ALOAD, 0),
 				new VarInsnNode(Opcodes.ALOAD, 3),
