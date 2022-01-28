@@ -18,6 +18,7 @@ import net.minecraftforge.fml.common.DummyModContainer;
 import net.minecraftforge.fml.common.LoadController;
 import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.event.FMLConstructionEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
@@ -52,6 +53,13 @@ public class ReachFix extends DummyModContainer {
 		ConfigManager.sync(MOD_ID, Config.Type.INSTANCE);
 		NETWORK.registerMessage(CPacketHandlerSyncConfig.class, SPacketSyncConfig.class, 1, Side.CLIENT);
 		MinecraftForge.EVENT_BUS.register(this);
+	}
+
+	@Subscribe
+	public void onFMLServerStartingEvent(FMLServerStartingEvent event) {
+		ReachFixUtil.setEnabled(ReachFixConfig.enabled);
+		ReachFixUtil.setReach(ReachFixConfig.reach);
+		ReachFixUtil.setReachCreative(ReachFixConfig.reachCreative);
 	}
 
 	@SubscribeEvent
