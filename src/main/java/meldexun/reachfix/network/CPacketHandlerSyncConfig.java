@@ -1,6 +1,7 @@
 package meldexun.reachfix.network;
 
 import meldexun.reachfix.util.ReachAttributeUtil;
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
@@ -14,6 +15,7 @@ public class CPacketHandlerSyncConfig implements IMessageHandler<SPacketSyncConf
 			ReachAttributeUtil.setEnabled(message.isEnabled());
 			ReachAttributeUtil.setReach(message.getReach());
 			ReachAttributeUtil.setReachCreative(message.getReachCreative());
+			ReachAttributeUtil.updateBaseReachModifier(Minecraft.getMinecraft().player);
 		});
 		return null;
 	}

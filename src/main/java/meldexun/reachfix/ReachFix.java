@@ -8,6 +8,7 @@ import com.google.common.eventbus.Subscribe;
 import meldexun.reachfix.config.ReachFixConfig;
 import meldexun.reachfix.network.CPacketHandlerSyncConfig;
 import meldexun.reachfix.network.SPacketSyncConfig;
+import meldexun.reachfix.util.ReachAttributeUtil;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config;
@@ -18,7 +19,9 @@ import net.minecraftforge.fml.common.LoadController;
 import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.event.FMLConstructionEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
@@ -54,6 +57,17 @@ public class ReachFix extends DummyModContainer {
 	@SubscribeEvent
 	public void onPlayerLoggedInEvent(PlayerLoggedInEvent event) {
 		NETWORK.sendTo(new SPacketSyncConfig(ReachFixConfig.enabled, ReachFixConfig.reach, ReachFixConfig.reachCreative), (EntityPlayerMP) event.player);
+		ReachAttributeUtil.updateBaseReachModifier(event.player);
+	}
+
+	@SubscribeEvent
+	public void onPlayerChangedDimensionEvent(PlayerChangedDimensionEvent event) {
+		ReachAttributeUtil.updateBaseReachModifier(event.player);
+	}
+
+	@SubscribeEvent
+	public void onPlayerRespawnEvent(PlayerRespawnEvent event) {
+		ReachAttributeUtil.updateBaseReachModifier(event.player);
 	}
 
 	@SubscribeEvent
