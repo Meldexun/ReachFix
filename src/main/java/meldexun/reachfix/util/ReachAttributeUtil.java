@@ -29,7 +29,7 @@ public class ReachAttributeUtil {
 	}
 
 	private static AttributeModifier createReachModifier() {
-		return new AttributeModifier(REACH_UUID, ReachFix.MOD_ID + ":base_reach", ReachFixConfig.reach - 4.5D, 0).setSaved(false);
+		return new AttributeModifier(REACH_UUID, ReachFix.MOD_ID + ":base_reach", ReachFixConfig.reach - 5.0D, 0).setSaved(false);
 	}
 
 	private static AttributeModifier createReachModifierCreative() {
