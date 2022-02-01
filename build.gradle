@@ -43,8 +43,6 @@ minecraft {
 
 configurations {
     includedDependencies
-    buildDependencies
-
     implementation.extendsFrom(includedDependencies)
 }
 
@@ -78,8 +76,4 @@ jar {
         attributes 'FMLCorePluginContainsFMLMod': 'true'
         attributes 'FMLAT': 'accesstransformer.cfg'
     }
-}
-
-compileJava {
-    classpath = sourceSets.main.compileClasspath + configurations.buildDependencies
 }
