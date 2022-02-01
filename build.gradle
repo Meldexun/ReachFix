@@ -56,8 +56,6 @@ repositories {
 
         metadataSources { artifact() } 
     }
-
-    maven { url = 'https://www.cursemaven.com' }
 }
 
 dependencies {
