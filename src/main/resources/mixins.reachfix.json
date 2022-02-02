@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "package": "meldexun.reachfix.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "mixins.reachfix.refmap.json",
+  "mixins": [
+  ],
+  "client": [
+  ],
+  "minVersion": "0.8"
+}
