@@ -4,8 +4,12 @@
   "compatibilityLevel": "JAVA_8",
   "refmap": "mixins.reachfix.refmap.json",
   "mixins": [
+    "common.MixinPlayerInteractionManager",
+    "common.MixinServerPlayNetHandler"
   ],
   "client": [
+    "client.MixinGameRenderer",
+    "client.MixinNetworkPlayerInfo"
   ],
   "minVersion": "0.8"
 }

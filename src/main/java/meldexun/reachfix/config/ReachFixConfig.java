@@ -1,21 +1,29 @@
 package meldexun.reachfix.config;
 
-import meldexun.reachfix.ReachFix;
-import net.minecraftforge.common.config.Config;
-import net.minecraftforge.common.config.Config.RangeDouble;
-import net.minecraftforge.common.config.Config.RequiresWorldRestart;
+import org.apache.commons.lang3.tuple.Pair;
 
-@Config(modid = ReachFix.MOD_ID)
+import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.common.ForgeConfigSpec.BooleanValue;
+import net.minecraftforge.common.ForgeConfigSpec.DoubleValue;
+
 public class ReachFixConfig {
 
-	@RequiresWorldRestart
-	public static boolean enabled = true;
+	public static final ReachFixConfig SERVER_CONFIG;
+	public static final ForgeConfigSpec SERVER_SPEC;
+	static {
+		final Pair<ReachFixConfig, ForgeConfigSpec> serverSpecPair = new ForgeConfigSpec.Builder().configure(ReachFixConfig::new);
+		SERVER_CONFIG = serverSpecPair.getLeft();
+		SERVER_SPEC = serverSpecPair.getRight();
+	}
 
-	@RequiresWorldRestart
-	@RangeDouble(min = 0.0D, max = 1024.0D)
-	public static double reach = 4.5D;
-	@RequiresWorldRestart
-	@RangeDouble(min = 0.0D, max = 1024.0D)
-	public static double reachCreative = 5.0D;
+	public final BooleanValue enabled;
+	public final DoubleValue reach;
+	public final DoubleValue reachCreative;
+
+	public ReachFixConfig(ForgeConfigSpec.Builder builder) {
+		this.enabled = builder.comment("").define("enabled", true);
+		this.reach = builder.comment("").defineInRange("reach", 4.5D, 0.0D, 1024.0D);
+		this.reachCreative = builder.comment("").defineInRange("reachCreative", 5.0D, 0.0D, 1024.0D);
+	}
 
 }

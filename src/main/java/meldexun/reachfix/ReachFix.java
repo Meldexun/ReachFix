@@ -1,88 +1,50 @@
 package meldexun.reachfix;
 
-import java.util.Arrays;
-
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
-
 import meldexun.reachfix.config.ReachFixConfig;
-import meldexun.reachfix.network.CPacketHandlerSyncConfig;
-import meldexun.reachfix.network.SPacketSyncConfig;
 import meldexun.reachfix.util.ReachFixUtil;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.config.Config;
-import net.minecraftforge.common.config.ConfigManager;
-import net.minecraftforge.fml.client.event.ConfigChangedEvent;
-import net.minecraftforge.fml.common.DummyModContainer;
-import net.minecraftforge.fml.common.LoadController;
-import net.minecraftforge.fml.common.ModMetadata;
-import net.minecraftforge.fml.common.event.FMLConstructionEvent;
-import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
-import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.event.entity.player.PlayerEvent.PlayerChangedDimensionEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent.PlayerRespawnEvent;
+import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig.Type;
+import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
-public class ReachFix extends DummyModContainer {
+@Mod(ReachFix.MOD_ID)
+public class ReachFix {
 
 	public static final String MOD_ID = "reachfix";
-	public static final SimpleNetworkWrapper NETWORK = NetworkRegistry.INSTANCE.newSimpleChannel(MOD_ID);
 
 	public ReachFix() {
-		super(new ModMetadata());
-		ModMetadata meta = this.getMetadata();
-		meta.name = "Reach Fix";
-		meta.version = "1.0.3";
-		meta.modId = MOD_ID;
-		meta.authorList = Arrays.asList("Meldexun");
-		meta.url = "https://github.com/Meldexun/ReachFix";
+		ModLoadingContext.get().registerConfig(Type.SERVER, ReachFixConfig.SERVER_SPEC);
+		MinecraftForge.EVENT_BUS.addListener(this::onFMLServerStartingEvent);
+		MinecraftForge.EVENT_BUS.addListener(this::onPlayerLoggedInEvent);
+		MinecraftForge.EVENT_BUS.addListener(this::onPlayerChangedDimensionEvent);
+		MinecraftForge.EVENT_BUS.addListener(this::onPlayerRespawnEvent);
 	}
 
-	@Override
-	public boolean registerBus(EventBus bus, LoadController controller) {
-		bus.register(this);
-		return true;
-	}
-
-	@Subscribe
-	public void onFMLConstructionEvent(FMLConstructionEvent event) {
-		ConfigManager.sync(MOD_ID, Config.Type.INSTANCE);
-		NETWORK.registerMessage(CPacketHandlerSyncConfig.class, SPacketSyncConfig.class, 1, Side.CLIENT);
-		MinecraftForge.EVENT_BUS.register(this);
-	}
-
-	@Subscribe
 	public void onFMLServerStartingEvent(FMLServerStartingEvent event) {
-		ReachFixUtil.setEnabled(ReachFixConfig.enabled);
-		ReachFixUtil.setReach(ReachFixConfig.reach);
-		ReachFixUtil.setReachCreative(ReachFixConfig.reachCreative);
+		System.out.println(1);
+		ReachFixUtil.setEnabled(ReachFixConfig.SERVER_CONFIG.enabled.get());
+		ReachFixUtil.setReach(ReachFixConfig.SERVER_CONFIG.reach.get());
+		ReachFixUtil.setReachCreative(ReachFixConfig.SERVER_CONFIG.reachCreative.get());
 	}
 
-	@SubscribeEvent
 	public void onPlayerLoggedInEvent(PlayerLoggedInEvent event) {
-		NETWORK.sendTo(new SPacketSyncConfig(ReachFixConfig.enabled, ReachFixConfig.reach, ReachFixConfig.reachCreative), (EntityPlayerMP) event.player);
-		ReachFixUtil.updateBaseReachModifier(event.player);
+		System.out.println(2);
+		ReachFixUtil.updateBaseReachModifier(event.getPlayer());
 	}
 
-	@SubscribeEvent
 	public void onPlayerChangedDimensionEvent(PlayerChangedDimensionEvent event) {
-		ReachFixUtil.updateBaseReachModifier(event.player);
+		System.out.println(3);
+		ReachFixUtil.updateBaseReachModifier(event.getPlayer());
 	}
 
-	@SubscribeEvent
 	public void onPlayerRespawnEvent(PlayerRespawnEvent event) {
-		ReachFixUtil.updateBaseReachModifier(event.player);
-	}
-
-	@SubscribeEvent
-	public void onConfigChangedEvent(ConfigChangedEvent.OnConfigChangedEvent event) {
-		if (event.getModID().equals(MOD_ID)) {
-			ConfigManager.sync(MOD_ID, Config.Type.INSTANCE);
-		}
+		System.out.println(4);
+		ReachFixUtil.updateBaseReachModifier(event.getPlayer());
 	}
 
 }
