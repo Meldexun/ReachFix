@@ -1,0 +1,11 @@
+modLoader="javafml"
+loaderVersion="[35,)"
+license="All rights reserved"
+issueTrackerURL="https://github.com/Meldexun/ReachFix/issues"
+[[mods]]
+modId="reachfix"
+version="1.0.0"
+displayName="Reach Fix"
+authors="Meldexun"
+description='''
+'''
