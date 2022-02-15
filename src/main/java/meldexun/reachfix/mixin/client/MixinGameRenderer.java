@@ -19,7 +19,6 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.util.math.vector.Vector3d;
@@ -155,9 +154,9 @@ public class MixinGameRenderer {
 			aabb = aabb.inflate(collisionBorderSize);
 		}
 		if (partialTicks != 0.0F) {
-			double x = MathHelper.clampedLerp(0.0D, entity.getX() - entity.xo, partialTicks);
-			double y = MathHelper.clampedLerp(0.0D, entity.getY() - entity.yo, partialTicks);
-			double z = MathHelper.clampedLerp(0.0D, entity.getZ() - entity.zo, partialTicks);
+			double x = -(entity.getX() - entity.xo) * (1.0D - partialTicks);
+			double y = -(entity.getY() - entity.yo) * (1.0D - partialTicks);
+			double z = -(entity.getZ() - entity.zo) * (1.0D - partialTicks);
 			aabb = aabb.move(x, y, z);
 		}
 		return aabb;
