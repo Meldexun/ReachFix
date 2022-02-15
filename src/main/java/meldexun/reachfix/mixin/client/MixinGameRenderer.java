@@ -140,6 +140,10 @@ public class MixinGameRenderer {
 			}
 		}
 
+		if (pointedEntity == null) {
+			return null;
+		}
+
 		return new EntityRayTraceResult(pointedEntity, result);
 	}
 
