@@ -10,7 +10,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.EntitySelectors;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.util.math.Vec3d;
@@ -143,9 +142,9 @@ public class EntityRendererHook {
 			aabb = aabb.grow(collisionBorderSize);
 		}
 		if (partialTicks != 0.0F) {
-			double x = MathHelper.clampedLerp(0.0D, entity.posX - entity.prevPosX, partialTicks);
-			double y = MathHelper.clampedLerp(0.0D, entity.posY - entity.prevPosY, partialTicks);
-			double z = MathHelper.clampedLerp(0.0D, entity.posZ - entity.prevPosZ, partialTicks);
+			double x = -(entity.posX - entity.lastTickPosX) * (1.0D - partialTicks);
+			double y = -(entity.posY - entity.lastTickPosY) * (1.0D - partialTicks);
+			double z = -(entity.posZ - entity.lastTickPosZ) * (1.0D - partialTicks);
 			aabb = aabb.offset(x, y, z);
 		}
 		return aabb;
