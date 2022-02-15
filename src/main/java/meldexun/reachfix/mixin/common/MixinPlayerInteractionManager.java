@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import meldexun.reachfix.util.ReachFixUtil;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.server.management.PlayerInteractionManager;
 import net.minecraft.world.GameType;
 
@@ -17,7 +17,7 @@ import net.minecraft.world.GameType;
 public class MixinPlayerInteractionManager {
 
 	@Shadow
-	private PlayerEntity player;
+	private ServerPlayerEntity player;
 
 	@ModifyConstant(method = "handleBlockBreakAction", constant = @Constant(doubleValue = 1.5D))
 	public double getEyeHeight(double d) {

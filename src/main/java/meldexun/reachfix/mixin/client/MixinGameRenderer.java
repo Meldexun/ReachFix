@@ -6,6 +6,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -66,6 +67,7 @@ public class MixinGameRenderer {
         mc.getProfiler().pop();
 	}
 
+	@Unique
 	@Nullable
 	private static RayTraceResult getPointedBlock(float partialTicks) {
 		Minecraft mc = Minecraft.getInstance();
@@ -88,6 +90,7 @@ public class MixinGameRenderer {
 		return result;
 	}
 
+	@Unique
 	@Nullable
 	private static RayTraceResult getPointedEntity(float partialTicks) {
 		Minecraft mc = Minecraft.getInstance();
@@ -140,6 +143,7 @@ public class MixinGameRenderer {
 		return new EntityRayTraceResult(pointedEntity, result);
 	}
 
+	@Unique
 	private static AxisAlignedBB getInterpolatedAABB(Entity entity, float partialTicks) {
 		AxisAlignedBB aabb = entity.getBoundingBox();
 		float collisionBorderSize = entity.getPickRadius();

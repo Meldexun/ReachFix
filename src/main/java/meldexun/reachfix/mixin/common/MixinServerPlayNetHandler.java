@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 import meldexun.reachfix.util.ReachFixUtil;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.play.ServerPlayNetHandler;
 import net.minecraft.util.math.AxisAlignedBB;
 
@@ -18,12 +18,12 @@ import net.minecraft.util.math.AxisAlignedBB;
 public class MixinServerPlayNetHandler {
 
 	@Shadow
-	private PlayerEntity player;
+	private ServerPlayerEntity player;
 	@Unique
 	private double aabbRadius;
 
-	@Redirect(method = "handleInteract", at = @At("distanceToSqr"))
-	public double distanceTo(PlayerEntity player, Entity target) {
+	@Redirect(method = "handleInteract", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/ServerPlayerEntity;distanceToSqr(Lnet/minecraft/entity/Entity;)D"))
+	public double distanceTo(ServerPlayerEntity player, Entity target) {
 		AxisAlignedBB aabb = target.getBoundingBox();
 		float collisionBorderSize = target.getPickRadius();
 		if (collisionBorderSize != 0.0F) {
