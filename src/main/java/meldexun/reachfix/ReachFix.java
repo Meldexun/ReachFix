@@ -26,24 +26,20 @@ public class ReachFix {
 	}
 
 	public void onFMLServerStartingEvent(FMLServerStartingEvent event) {
-		System.out.println(1);
 		ReachFixUtil.setEnabled(ReachFixConfig.SERVER_CONFIG.enabled.get());
 		ReachFixUtil.setReach(ReachFixConfig.SERVER_CONFIG.reach.get());
 		ReachFixUtil.setReachCreative(ReachFixConfig.SERVER_CONFIG.reachCreative.get());
 	}
 
 	public void onPlayerLoggedInEvent(PlayerLoggedInEvent event) {
-		System.out.println(2);
 		ReachFixUtil.updateBaseReachModifier(event.getPlayer());
 	}
 
 	public void onPlayerChangedDimensionEvent(PlayerChangedDimensionEvent event) {
-		System.out.println(3);
 		ReachFixUtil.updateBaseReachModifier(event.getPlayer());
 	}
 
 	public void onPlayerRespawnEvent(PlayerRespawnEvent event) {
-		System.out.println(4);
 		ReachFixUtil.updateBaseReachModifier(event.getPlayer());
 	}
 
