@@ -1,4 +1,4 @@
-package meldexun.reachfix.asm.hook;
+package meldexun.reachfix.hook;
 
 import meldexun.reachfix.util.ReachFixUtil;
 import net.minecraft.entity.Entity;

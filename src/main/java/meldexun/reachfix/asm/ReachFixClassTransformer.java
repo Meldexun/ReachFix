@@ -25,7 +25,7 @@ public class ReachFixClassTransformer extends AbstractClassTransformer implement
 				new MethodInsnNode(Opcodes.INVOKESTATIC, "meldexun/reachfix/util/ReachFixUtil", "isEnabled", "()Z", false),
 				new JumpInsnNode(Opcodes.IFEQ, (LabelNode) popNode1),
 				new VarInsnNode(Opcodes.FLOAD, 1),
-				new MethodInsnNode(Opcodes.INVOKESTATIC, "meldexun/reachfix/asm/hook/client/EntityRendererHook", "getMouseOver", "(F)V", false),
+				new MethodInsnNode(Opcodes.INVOKESTATIC, "meldexun/reachfix/hook/client/EntityRendererHook", "getMouseOver", "(F)V", false),
 				new InsnNode(Opcodes.RETURN),
 				popNode1
 			));
@@ -42,7 +42,7 @@ public class ReachFixClassTransformer extends AbstractClassTransformer implement
 				new JumpInsnNode(Opcodes.IFEQ, (LabelNode) popNode11),
 				new VarInsnNode(Opcodes.ALOAD, 0),
 				new VarInsnNode(Opcodes.ALOAD, 3),
-				new MethodInsnNode(Opcodes.INVOKESTATIC, "meldexun/reachfix/asm/hook/NetHandlerPlayServerHook", "isEntityInRange", "(Lnet/minecraft/network/NetHandlerPlayServer;Lnet/minecraft/entity/Entity;)Z", false),
+				new MethodInsnNode(Opcodes.INVOKESTATIC, "meldexun/reachfix/hook/NetHandlerPlayServerHook", "isEntityInRange", "(Lnet/minecraft/network/NetHandlerPlayServer;Lnet/minecraft/entity/Entity;)Z", false),
 				new JumpInsnNode(Opcodes.IFNE, (LabelNode) popNode12),
 				new InsnNode(Opcodes.RETURN),
 				popNode11
@@ -56,7 +56,7 @@ public class ReachFixClassTransformer extends AbstractClassTransformer implement
 
 			methodNode.instructions.insert(targetNode1, ASMUtil.listOf(
 				new VarInsnNode(Opcodes.ALOAD, 0),
-				new MethodInsnNode(Opcodes.INVOKESTATIC, "meldexun/reachfix/asm/hook/NetHandlerPlayServerHook", "getEyeHeightMinusOnePointFive", "(Lnet/minecraft/network/NetHandlerPlayServer;)D", false),
+				new MethodInsnNode(Opcodes.INVOKESTATIC, "meldexun/reachfix/hook/NetHandlerPlayServerHook", "getEyeHeightMinusOnePointFive", "(Lnet/minecraft/network/NetHandlerPlayServer;)D", false),
 				new InsnNode(Opcodes.DADD)
 			));
 		});
@@ -64,14 +64,14 @@ public class ReachFixClassTransformer extends AbstractClassTransformer implement
 			methodNode.instructions.insert(ASMUtil.listOf(
 				new VarInsnNode(Opcodes.ALOAD, 0),
 				new VarInsnNode(Opcodes.ALOAD, 1),
-				new MethodInsnNode(Opcodes.INVOKESTATIC, "meldexun/reachfix/asm/hook/client/NetworkPlayerInfoHook", "onUpdateGameMode", "(Lnet/minecraft/client/network/NetworkPlayerInfo;Lnet/minecraft/world/GameType;)V", false)
+				new MethodInsnNode(Opcodes.INVOKESTATIC, "meldexun/reachfix/hook/client/NetworkPlayerInfoHook", "onUpdateGameMode", "(Lnet/minecraft/client/network/NetworkPlayerInfo;Lnet/minecraft/world/GameType;)V", false)
 			));
 		});
 		this.registerMethodTransformer("or", "a", "(Lams;)V", "net/minecraft/server/management/PlayerInteractionManager", "setGameType", "(Lnet/minecraft/world/GameType;)V", methodNode -> {
 			methodNode.instructions.insert(ASMUtil.listOf(
 				new VarInsnNode(Opcodes.ALOAD, 0),
 				new VarInsnNode(Opcodes.ALOAD, 1),
-				new MethodInsnNode(Opcodes.INVOKESTATIC, "meldexun/reachfix/asm/hook/PlayerInteractionManagerHook", "onUpdateGameMode", "(Lnet/minecraft/server/management/PlayerInteractionManager;Lnet/minecraft/world/GameType;)V", false)
+				new MethodInsnNode(Opcodes.INVOKESTATIC, "meldexun/reachfix/hook/PlayerInteractionManagerHook", "onUpdateGameMode", "(Lnet/minecraft/server/management/PlayerInteractionManager;Lnet/minecraft/world/GameType;)V", false)
 			));
 		});
 		// @formatter:on

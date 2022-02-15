@@ -1,4 +1,4 @@
-package meldexun.reachfix.asm.hook.client;
+package meldexun.reachfix.hook.client;
 
 import meldexun.reachfix.util.ReachFixUtil;
 import net.minecraft.client.Minecraft;
