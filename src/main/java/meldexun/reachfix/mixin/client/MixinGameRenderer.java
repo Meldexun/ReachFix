@@ -41,7 +41,7 @@ public class MixinGameRenderer {
 			return;
 		}
 
-        mc.getProfiler().push("pick");
+		mc.getProfiler().push("pick");
 		RayTraceResult pointedBlock = getPointedBlock(partialTicks);
 		RayTraceResult pointedEntity = getPointedEntity(partialTicks);
 
@@ -64,7 +64,7 @@ public class MixinGameRenderer {
 			mc.hitResult = BlockRayTraceResult.miss(end, null, new BlockPos(end));
 		}
 
-        mc.getProfiler().pop();
+		mc.getProfiler().pop();
 	}
 
 	@Unique
