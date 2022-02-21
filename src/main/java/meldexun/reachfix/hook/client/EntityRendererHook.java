@@ -51,6 +51,7 @@ public class EntityRendererHook {
 		}
 
 		mc.entityRenderer.pointedEntity = mc.objectMouseOver.entityHit;
+		mc.pointedEntity = mc.objectMouseOver.entityHit;
 		mc.profiler.endSection();
 	}
 
