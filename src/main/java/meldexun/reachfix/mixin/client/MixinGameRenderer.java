@@ -15,6 +15,7 @@ import meldexun.reachfix.util.ReachFixUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
@@ -60,7 +61,7 @@ public class MixinGameRenderer {
 			Vector3d dir = viewEntity.getViewVector(partialTicks).scale(reach);
 			Vector3d start = viewEntity.getEyePosition(partialTicks);
 			Vector3d end = start.add(dir);
-			mc.hitResult = BlockRayTraceResult.miss(end, null, new BlockPos(end));
+			mc.hitResult = BlockRayTraceResult.miss(end, Direction.getNearest(dir.x(), dir.y(), dir.z()), new BlockPos(end));
 		}
 
 		mc.getProfiler().pop();
