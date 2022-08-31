@@ -76,6 +76,7 @@ public class ReachFixClassTransformer extends AbstractClassTransformer implement
 		});
 
 		this.registerMethodTransformer("?", "?", "?", "com/oblivioussp/spartanweaponry/event/EventHandlerClient", "onMouseEvent", "(Lnet/minecraftforge/client/event/MouseEvent;)V", methodNode -> {
+			ASMUtil.LOGGER.info("Transforming method (SpartanWeaponry): EventHandlerClient#onMouseEvent(MouseEvent)");
 			AbstractInsnNode popNode1 = new LabelNode();
 
 			methodNode.instructions.insert(ASMUtil.listOf(
@@ -87,6 +88,7 @@ public class ReachFixClassTransformer extends AbstractClassTransformer implement
 		});
 
 		this.registerMethodTransformer("?", "?", "?", "com/mujmajnkraft/bettersurvival/client/ModClientHandler", "onEvent", "(Lnet/minecraftforge/fml/common/gameevent/InputEvent;)V", methodNode -> {
+			ASMUtil.LOGGER.info("Transforming method (BetterSurvival): ModClientHandler#onEvent(InputEvent)");
 			AbstractInsnNode popNode1 = new LabelNode();
 
 			methodNode.instructions.insert(ASMUtil.listOf(
