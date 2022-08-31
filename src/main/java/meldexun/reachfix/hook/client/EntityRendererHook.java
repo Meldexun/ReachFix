@@ -7,12 +7,14 @@ import javax.annotation.Nullable;
 import meldexun.reachfix.util.ReachFixUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EntitySelectors;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
 
 public class EntityRendererHook {
 
@@ -23,94 +25,66 @@ public class EntityRendererHook {
 		if (viewEntity == null) {
 			return;
 		}
+		if (mc.player == null) {
+			return;
+		}
 		if (mc.world == null) {
 			return;
 		}
 
 		mc.profiler.startSection("pick");
-		RayTraceResult pointedBlock = getPointedBlock(partialTicks);
-		RayTraceResult pointedEntity = getPointedEntity(partialTicks);
-
-		if (pointedBlock != null) {
-			if (pointedEntity != null) {
-				Vec3d start = viewEntity.getPositionEyes(partialTicks);
-				double d1 = pointedBlock.hitVec.squareDistanceTo(start);
-				double d2 = pointedEntity.hitVec.squareDistanceTo(start);
-				mc.objectMouseOver = d1 <= d2 ? pointedBlock : pointedEntity;
-			} else {
-				mc.objectMouseOver = pointedBlock;
-			}
-		} else if (pointedEntity != null) {
-			mc.objectMouseOver = pointedEntity;
-		} else {
-			double reach = mc.playerController.getBlockReachDistance();
-			Vec3d dir = viewEntity.getLook(partialTicks).scale(reach);
-			Vec3d start = viewEntity.getPositionEyes(partialTicks);
-			Vec3d end = start.add(dir);
-			mc.objectMouseOver = new RayTraceResult(Type.MISS, end, null, new BlockPos(end));
-		}
-
+		mc.objectMouseOver = pointedObject(viewEntity, mc.player, mc.world, partialTicks);
 		mc.entityRenderer.pointedEntity = mc.objectMouseOver.entityHit;
 		mc.pointedEntity = mc.objectMouseOver.entityHit;
 		mc.profiler.endSection();
 	}
 
-	@Nullable
-	private static RayTraceResult getPointedBlock(float partialTicks) {
-		Minecraft mc = Minecraft.getMinecraft();
-		Entity viewEntity = mc.getRenderViewEntity();
+	private static RayTraceResult pointedObject(Entity viewEntity, EntityPlayer player, World world, float partialTicks) {
+		Vec3d start = viewEntity.getPositionEyes(partialTicks);
+		Vec3d look = viewEntity.getLook(partialTicks);
+		Vec3d end = start.add(look.scale(ReachFixUtil.getBlockReach(player)));
+		RayTraceResult pointedBlock = world.rayTraceBlocks(start, end, false, false, false);
 
-		if (viewEntity == null) {
-			return null;
+		if (pointedBlock != null) {
+			RayTraceResult pointedEntity = getPointedEntity(viewEntity, world, start, pointedBlock.hitVec, partialTicks);
+			if (pointedEntity == null) {
+				return pointedBlock;
+			}
+			if (start.distanceTo(pointedEntity.hitVec) <= ReachFixUtil.getEntityReach(player)) {
+				return pointedEntity;
+			}
+		} else {
+			Vec3d end1 = start.add(look.scale(ReachFixUtil.getEntityReach(player)));
+			RayTraceResult pointedEntity = getPointedEntity(viewEntity, world, start, end1, partialTicks);
+			if (pointedEntity != null) {
+				return pointedEntity;
+			}
 		}
-		if (mc.world == null) {
-			return null;
-		}
 
-		double reach = ReachFixUtil.getBlockReach(mc.player);
-		RayTraceResult result = viewEntity.rayTrace(reach, partialTicks);
-
-		if (result != null && result.typeOfHit == Type.MISS) {
-			return null;
-		}
-
-		return result;
+		return new RayTraceResult(Type.MISS, end, null, new BlockPos(end));
 	}
 
 	@Nullable
-	private static RayTraceResult getPointedEntity(float partialTicks) {
-		Minecraft mc = Minecraft.getMinecraft();
-		Entity viewEntity = mc.getRenderViewEntity();
-
-		if (viewEntity == null) {
-			return null;
-		}
-		if (mc.world == null) {
-			return null;
-		}
-
-		double reach = ReachFixUtil.getEntityReach(mc.player);
-		Vec3d dir = viewEntity.getLook(partialTicks).scale(reach);
-		AxisAlignedBB aabb = viewEntity.getEntityBoundingBox();
-		aabb = aabb.expand(dir.x, dir.y, dir.z);
-		aabb = aabb.grow(1.0D);
-		List<Entity> possibleEntities = mc.world.getEntitiesInAABBexcluding(viewEntity, aabb, entity -> {
+	private static RayTraceResult getPointedEntity(Entity viewEntity, World world, Vec3d start, Vec3d end, float partialTicks) {
+		AxisAlignedBB aabb = new AxisAlignedBB(start, end).grow(1.0D);
+		Entity lowestRidingEntity = viewEntity.getLowestRidingEntity();
+		List<Entity> possibleEntities = world.getEntitiesInAABBexcluding(viewEntity, aabb, entity -> {
 			if (!EntitySelectors.NOT_SPECTATING.apply(entity)) {
 				return false;
 			}
-			return entity.canBeCollidedWith();
+			if (!entity.canBeCollidedWith()) {
+				return false;
+			}
+			if (lowestRidingEntity != entity.getLowestRidingEntity()) {
+				return true;
+			}
+			return entity.canRiderInteract();
 		});
 
-		Vec3d start = viewEntity.getPositionEyes(partialTicks);
-		Vec3d end = start.add(dir);
 		RayTraceResult result = null;
 		Entity pointedEntity = null;
 		double min = Double.MAX_VALUE;
 		for (Entity entity : possibleEntities) {
-			if (viewEntity.getLowestRidingEntity() == entity.getLowestRidingEntity() && !entity.canRiderInteract()) {
-				continue;
-			}
-
 			AxisAlignedBB entityAabb = getInterpolatedAABB(entity, partialTicks);
 			if (entityAabb.contains(start)) {
 				return new RayTraceResult(entity, start);
