@@ -4,46 +4,26 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: "${forge_gradle_version}", changing: true
     }
 }
 apply plugin: 'net.minecraftforge.gradle'
-// Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 apply plugin: 'eclipse'
 
-version = '1.12.2-1.0.5'
-group = 'meldexun.reachfix'
-archivesBaseName = 'ReachFix'
+version = "${mc_version}-${mod_version}-${mod_stage}"
+group = "meldexun.${mod_id}"
+archivesBaseName = "${mod_name}"
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(8)
 
-minecraft {
-    mappings channel: 'stable', version: '39-1.12'
-
-    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
-
-    runs {
-        client {
-            taskName 'runClient RF 1.12'
-            environment 'MC_VERSION', '1.12.2'
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-            property 'forge.logging.console.level', 'info'
-            property 'fml.coreMods.load', 'meldexun.reachfix.asm.ReachFixPlugin'
-        }
-
-        server {
-            taskName 'runServer RF 1.12'
-            environment 'MC_VERSION', '1.12.2'
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-            property 'forge.logging.console.level', 'info'
-            property 'fml.coreMods.load', 'meldexun.reachfix.asm.ReachFixPlugin'
-        }
-    }
-}
-
 configurations {
+    atDependencies
+    implementation.extendsFrom(atDependencies)
+
     includedDependencies
     implementation.extendsFrom(includedDependencies)
+
+    buildDependencies
 }
 
 repositories {
@@ -56,21 +36,68 @@ repositories {
 
         metadataSources { artifact() } 
     }
+
+    maven { url = 'https://www.cursemaven.com' }
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2860'
+    minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
     includedDependencies 'meldexun:ASMUtil:1.0.0@jar'
 }
 
+minecraft {
+    mappings channel: "${mappings_channel}", version: "${mappings_version}"
+
+    def atDepFileTree = files(configurations.atDependencies.collect { zipTree(it) }).getAsFileTree()
+    accessTransformer = files(
+        'src/main/resources/META-INF/accesstransformer.cfg'
+    )
+
+    runs {
+        client {
+            taskName "runClient ${mod_name} ${mc_version}"
+            environment 'MC_VERSION', "${mc_version}"
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'info'
+            property 'fml.coreMods.load', "${mod_plugin_class}"
+        }
+
+        server {
+            taskName "runServer ${mod_name} ${mc_version}"
+            environment 'MC_VERSION', "${mc_version}"
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'info'
+            property 'fml.coreMods.load', "${mod_plugin_class}"
+        }
+    }
+}
+
+processResources {
+    inputs.property('version', "${mod_stage}" != "" ? "${mod_version}-${mod_stage}" : "${mod_version}")
+
+    filesMatching('mcmod.info') {
+        expand version: inputs.properties.get('version')
+    }
+}
+
 jar {
+    archiveBaseName = mod_name
+    archiveAppendix = mc_version
+    archiveVersion = mod_version
+    archiveClassifier = mod_stage
+
     from {
         configurations.includedDependencies.collect { it.isDirectory() ? it : zipTree(it) }
     }
 
     manifest {
-        attributes 'FMLCorePlugin': 'meldexun.reachfix.asm.ReachFixPlugin'
-        attributes 'FMLCorePluginContainsFMLMod': 'true'
         attributes 'FMLAT': 'accesstransformer.cfg'
+        attributes 'FMLCorePlugin': "${mod_plugin_class}"
     }
+}
+
+jar.finalizedBy('reobfJar')
+
+compileJava {
+    classpath = sourceSets.main.compileClasspath + configurations.buildDependencies
 }
