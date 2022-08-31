@@ -3,6 +3,8 @@ package meldexun.reachfix.util;
 import java.util.UUID;
 
 import meldexun.reachfix.ReachFix;
+import meldexun.reachfix.integration.BetterSurvival;
+import meldexun.reachfix.integration.SpartanWeaponry;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.player.EntityPlayer;
@@ -26,7 +28,14 @@ public class ReachFixUtil {
 	}
 
 	public static double getBlockReach(EntityPlayer player) {
-		return player.getEntityAttribute(EntityPlayer.REACH_DISTANCE).getAttributeValue();
+		double reach = player.getEntityAttribute(EntityPlayer.REACH_DISTANCE).getAttributeValue();
+		if (ReachFix.isSpartanWeaponryInstalled) {
+			reach += SpartanWeaponry.getReachBonus(player);
+		}
+		if (ReachFix.isBetterSurvivalInstalled) {
+			reach += BetterSurvival.getReachBonus(player);
+		}
+		return reach;
 	}
 
 	public static double getEntityReach(EntityPlayer player) {

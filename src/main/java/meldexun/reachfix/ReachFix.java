@@ -16,8 +16,10 @@ import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.DummyModContainer;
 import net.minecraftforge.fml.common.LoadController;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.event.FMLConstructionEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
@@ -31,6 +33,8 @@ public class ReachFix extends DummyModContainer {
 
 	public static final String MOD_ID = "reachfix";
 	public static final SimpleNetworkWrapper NETWORK = NetworkRegistry.INSTANCE.newSimpleChannel(MOD_ID);
+	public static boolean isSpartanWeaponryInstalled;
+	public static boolean isBetterSurvivalInstalled;
 
 	public ReachFix() {
 		super(new ModMetadata());
@@ -53,6 +57,12 @@ public class ReachFix extends DummyModContainer {
 		ConfigManager.sync(MOD_ID, Config.Type.INSTANCE);
 		NETWORK.registerMessage(CPacketHandlerSyncConfig.class, SPacketSyncConfig.class, 1, Side.CLIENT);
 		MinecraftForge.EVENT_BUS.register(this);
+	}
+
+	@Subscribe
+	public void onFMLPostInitializationEvent(FMLPostInitializationEvent event) {
+		isSpartanWeaponryInstalled = Loader.isModLoaded("spartanweaponry");
+		isBetterSurvivalInstalled = Loader.isModLoaded("mujmajnkraftsbettersurvival");
 	}
 
 	@Subscribe
