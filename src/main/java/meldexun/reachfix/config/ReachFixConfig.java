@@ -5,7 +5,7 @@ import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.Config.RangeDouble;
 import net.minecraftforge.common.config.Config.RequiresWorldRestart;
 
-@Config(modid = ReachFix.MOD_ID)
+@Config(modid = ReachFix.MODID)
 public class ReachFixConfig {
 
 	@RequiresWorldRestart

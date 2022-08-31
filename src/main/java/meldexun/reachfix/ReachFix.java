@@ -1,10 +1,5 @@
 package meldexun.reachfix;
 
-import java.util.Arrays;
-
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
-
 import meldexun.reachfix.config.ReachFixConfig;
 import meldexun.reachfix.network.CPacketHandlerSyncConfig;
 import meldexun.reachfix.network.SPacketSyncConfig;
@@ -14,10 +9,9 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
-import net.minecraftforge.fml.common.DummyModContainer;
-import net.minecraftforge.fml.common.LoadController;
 import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.ModMetadata;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLConstructionEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
@@ -29,43 +23,27 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
 
-public class ReachFix extends DummyModContainer {
+@Mod(modid = ReachFix.MODID)
+public class ReachFix {
 
-	public static final String MOD_ID = "reachfix";
-	public static final SimpleNetworkWrapper NETWORK = NetworkRegistry.INSTANCE.newSimpleChannel(MOD_ID);
+	public static final String MODID = "reachfix";
+	public static final SimpleNetworkWrapper NETWORK = NetworkRegistry.INSTANCE.newSimpleChannel(MODID);
 	public static boolean isSpartanWeaponryInstalled;
 	public static boolean isBetterSurvivalInstalled;
 
-	public ReachFix() {
-		super(new ModMetadata());
-		ModMetadata meta = this.getMetadata();
-		meta.name = "Reach Fix";
-		meta.version = "1.0.5";
-		meta.modId = MOD_ID;
-		meta.authorList = Arrays.asList("Meldexun");
-		meta.url = "https://github.com/Meldexun/ReachFix";
-	}
-
-	@Override
-	public boolean registerBus(EventBus bus, LoadController controller) {
-		bus.register(this);
-		return true;
-	}
-
-	@Subscribe
+	@EventHandler
 	public void onFMLConstructionEvent(FMLConstructionEvent event) {
-		ConfigManager.sync(MOD_ID, Config.Type.INSTANCE);
-		NETWORK.registerMessage(CPacketHandlerSyncConfig.class, SPacketSyncConfig.class, 1, Side.CLIENT);
 		MinecraftForge.EVENT_BUS.register(this);
+		NETWORK.registerMessage(CPacketHandlerSyncConfig.class, SPacketSyncConfig.class, 1, Side.CLIENT);
 	}
 
-	@Subscribe
+	@EventHandler
 	public void onFMLPostInitializationEvent(FMLPostInitializationEvent event) {
 		isSpartanWeaponryInstalled = Loader.isModLoaded("spartanweaponry");
 		isBetterSurvivalInstalled = Loader.isModLoaded("mujmajnkraftsbettersurvival");
 	}
 
-	@Subscribe
+	@EventHandler
 	public void onFMLServerStartingEvent(FMLServerStartingEvent event) {
 		ReachFixUtil.setEnabled(ReachFixConfig.enabled);
 		ReachFixUtil.setReach(ReachFixConfig.reach);
@@ -90,8 +68,8 @@ public class ReachFix extends DummyModContainer {
 
 	@SubscribeEvent
 	public void onConfigChangedEvent(ConfigChangedEvent.OnConfigChangedEvent event) {
-		if (event.getModID().equals(MOD_ID)) {
-			ConfigManager.sync(MOD_ID, Config.Type.INSTANCE);
+		if (event.getModID().equals(MODID)) {
+			ConfigManager.sync(MODID, Config.Type.INSTANCE);
 		}
 	}
 

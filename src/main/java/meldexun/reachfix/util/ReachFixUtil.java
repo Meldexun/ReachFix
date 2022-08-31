@@ -12,7 +12,7 @@ import net.minecraft.entity.player.EntityPlayer;
 public class ReachFixUtil {
 
 	private static final UUID REACH_UUID = UUID.fromString("00d4860f-b487-4402-b424-373a52566330");
-	private static final String REACH_STRING = ReachFix.MOD_ID + ":base_reach";
+	private static final String REACH_STRING = ReachFix.MODID + ":base_reach";
 	private static boolean enabled = true;
 	private static double reach = 4.5D;
 	private static double reachCreative = 5.0D;
