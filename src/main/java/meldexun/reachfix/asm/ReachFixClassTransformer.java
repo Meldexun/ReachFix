@@ -76,15 +76,25 @@ public class ReachFixClassTransformer extends AbstractClassTransformer implement
 		});
 
 		this.registerMethodTransformer("?", "?", "?", "com/oblivioussp/spartanweaponry/event/EventHandlerClient", "onMouseEvent", "(Lnet/minecraftforge/client/event/MouseEvent;)V", methodNode -> {
+			AbstractInsnNode popNode1 = new LabelNode();
+
 			methodNode.instructions.insert(ASMUtil.listOf(
-				new InsnNode(Opcodes.RETURN))
-			);
+				new MethodInsnNode(Opcodes.INVOKESTATIC, "meldexun/reachfix/util/ReachFixUtil", "isEnabled", "()Z", false),
+				new JumpInsnNode(Opcodes.IFEQ, (LabelNode) popNode1),
+				new InsnNode(Opcodes.RETURN),
+				popNode1
+			));
 		});
 
 		this.registerMethodTransformer("?", "?", "?", "com/mujmajnkraft/bettersurvival/client/ModClientHandler", "onEvent", "(Lnet/minecraftforge/fml/common/gameevent/InputEvent;)V", methodNode -> {
+			AbstractInsnNode popNode1 = new LabelNode();
+
 			methodNode.instructions.insert(ASMUtil.listOf(
-				new InsnNode(Opcodes.RETURN))
-			);
+				new MethodInsnNode(Opcodes.INVOKESTATIC, "meldexun/reachfix/util/ReachFixUtil", "isEnabled", "()Z", false),
+				new JumpInsnNode(Opcodes.IFEQ, (LabelNode) popNode1),
+				new InsnNode(Opcodes.RETURN),
+				popNode1
+			));
 		});
 		// @formatter:on
 	}
