@@ -4,31 +4,55 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
-        classpath 'org.spongepowered:mixingradle:0.7.+'
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: "${forge_gradle_version}", changing: true
     }
 }
 apply plugin: 'net.minecraftforge.gradle'
-// Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 apply plugin: 'eclipse'
-apply plugin: 'org.spongepowered.mixin'
 
-version = '1.16.5-1.0.1'
-group = 'meldexun.reachfix'
-archivesBaseName = 'ReachFix'
+version = "${mod_stage}" != "" ? "${mc_version}-${mod_version}-${mod_stage}" : "${mc_version}-${mod_version}"
+group = "meldexun.${mod_id}"
+archivesBaseName = "${mod_name}"
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(8)
 
-minecraft {
-    mappings channel: 'official', version: '1.16.5'
+configurations {
+    includedDependencies
+    implementation.extendsFrom(includedDependencies)
 
-    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+    buildDependencies
+}
+
+repositories {
+    ivy {
+        url 'https://github.com/'
+
+        patternLayout {
+            artifact '[organisation]/[module]/releases/download/v[revision]/[module]-[revision].[ext]'
+        }
+
+        metadataSources { artifact() } 
+    }
+
+    maven { url = 'https://www.cursemaven.com' }
+}
+
+dependencies {
+    minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
+}
+
+minecraft {
+    mappings channel: "${mappings_channel}", version: "${mappings_version}"
+
+    // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
     runs {
         client {
-            taskName 'runClient RF 1.16'
+            taskName "runClient ${mod_name} ${mc_version}"
+            workingDirectory project.file('run')
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'info'
+            property 'mixin.env.disableRefMap', 'true'
 
             mods {
                 reachfix {
@@ -38,9 +62,11 @@ minecraft {
         }
 
         server {
-            taskName 'runServer RF 1.16'
+            taskName "runServer ${mod_name} ${mc_version}"
+            workingDirectory project.file('run')
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'info'
+            property 'mixin.env.disableRefMap', 'true'
 
             mods {
                 reachfix {
@@ -50,10 +76,12 @@ minecraft {
         }
 
         data {
-            taskName 'runData RF 1.16'
+            taskName "runData ${mod_name} ${mc_version}"
+            workingDirectory project.file('run')
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'info'
-            args '--mod', 'reachfix', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+            property 'mixin.env.disableRefMap', 'true'
+            args '--mod', "${mod_id}", '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
 
             mods {
                 reachfix {
@@ -66,13 +94,27 @@ minecraft {
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
-dependencies {
-    minecraft 'net.minecraftforge:forge:1.16.5-36.2.34'
+processResources {
+    inputs.property('version', "${mod_stage}" != "" ? "${mod_version}-${mod_stage}" : "${mod_version}")
 
-    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    filesMatching('META-INF/mods.toml') {
+        expand version: inputs.properties.get('version')
+    }
 }
 
-mixin {
-    add sourceSets.main, 'mixins.reachfix.refmap.json'
-    config 'mixins.reachfix.json'
+jar {
+    archiveBaseName = mod_name
+    archiveAppendix = mc_version
+    archiveVersion = mod_version
+    archiveClassifier = mod_stage
+
+    from {
+        configurations.includedDependencies.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+jar.finalizedBy('reobfJar')
+
+compileJava {
+    classpath = sourceSets.main.compileClasspath + configurations.buildDependencies
 }
