@@ -13,6 +13,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.play.ServerPlayNetHandler;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.vector.Vector3d;
 
 @Mixin(ServerPlayNetHandler.class)
 public class MixinServerPlayNetHandler {
@@ -25,18 +26,19 @@ public class MixinServerPlayNetHandler {
 	@Redirect(method = "handleInteract", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/ServerPlayerEntity;distanceToSqr(Lnet/minecraft/entity/Entity;)D"))
 	public double distanceTo(ServerPlayerEntity player, Entity target) {
 		AxisAlignedBB aabb = target.getBoundingBox();
-		float collisionBorderSize = target.getPickRadius();
-		if (collisionBorderSize != 0.0F) {
-			aabb = aabb.inflate(collisionBorderSize);
+		float pickRadius = target.getPickRadius();
+		if (pickRadius != 0.0F) {
+			aabb = aabb.inflate(pickRadius);
 		}
-		double x = (aabb.maxX - aabb.minX) * 0.5D;
-		double y = (aabb.maxY - aabb.minY) * 0.5D;
-		double z = (aabb.maxZ - aabb.minZ) * 0.5D;
-		this.aabbRadius = Math.sqrt(x * x + y * y + z * z);
-		double x1 = aabb.minX + x - player.getX();
-		double y1 = aabb.minY + y - (player.getY() + player.getEyeHeight());
-		double z1 = aabb.minZ + z - player.getZ();
-		return Math.sqrt(x1 * x1 + y1 * y1 + z1 * z1);
+		Vector3d center = aabb.getCenter();
+		double rx = center.x - aabb.minX;
+		double ry = center.y - aabb.minY;
+		double rz = center.z - aabb.minZ;
+		this.aabbRadius = Math.sqrt(rx * rx + ry * ry + rz * rz);
+		double dx = center.x - player.getX();
+		double dy = center.y - player.getEyeY();
+		double dz = center.z - player.getZ();
+		return Math.sqrt(dx * dx + dy * dy + dz * dz);
 	}
 
 	@ModifyConstant(method = "handleInteract", constant = @Constant(doubleValue = 36.0D, ordinal = 1))
