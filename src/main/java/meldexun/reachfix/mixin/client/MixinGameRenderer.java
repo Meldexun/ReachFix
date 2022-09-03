@@ -15,14 +15,17 @@ import meldexun.reachfix.util.ReachFixUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.Direction;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.EntityRayTraceResult;
+import net.minecraft.util.math.RayTraceContext;
+import net.minecraft.util.math.RayTraceContext.BlockMode;
+import net.minecraft.util.math.RayTraceContext.FluidMode;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.World;
 
 @Mixin(GameRenderer.class)
 public class MixinGameRenderer {
@@ -32,9 +35,12 @@ public class MixinGameRenderer {
 		info.cancel();
 
 		Minecraft mc = Minecraft.getInstance();
-		Entity viewEntity = mc.getCameraEntity();
+		Entity cameraEntity = mc.getCameraEntity();
 
-		if (viewEntity == null) {
+		if (cameraEntity == null) {
+			return;
+		}
+		if (mc.player == null) {
 			return;
 		}
 		if (mc.level == null) {
@@ -42,86 +48,49 @@ public class MixinGameRenderer {
 		}
 
 		mc.getProfiler().push("pick");
-		RayTraceResult pointedBlock = getPointedBlock(partialTicks);
-		RayTraceResult pointedEntity = getPointedEntity(partialTicks);
-
-		if (pointedBlock != null) {
-			if (pointedEntity != null) {
-				Vector3d start = viewEntity.getEyePosition(partialTicks);
-				double d1 = pointedBlock.getLocation().distanceToSqr(start);
-				double d2 = pointedEntity.getLocation().distanceToSqr(start);
-				mc.hitResult = d1 <= d2 ? pointedBlock : pointedEntity;
-			} else {
-				mc.hitResult = pointedBlock;
-			}
-		} else if (pointedEntity != null) {
-			mc.hitResult = pointedEntity;
-		} else {
-			double reach = ReachFixUtil.getBlockReach(mc.player);
-			Vector3d dir = viewEntity.getViewVector(partialTicks).scale(reach);
-			Vector3d start = viewEntity.getEyePosition(partialTicks);
-			Vector3d end = start.add(dir);
-			mc.hitResult = BlockRayTraceResult.miss(end, Direction.getNearest(dir.x(), dir.y(), dir.z()), new BlockPos(end));
-		}
-
+		mc.hitResult = pointedObject(cameraEntity, mc.player, mc.level, partialTicks);
 		mc.getProfiler().pop();
 	}
 
 	@Unique
-	@Nullable
-	private static RayTraceResult getPointedBlock(float partialTicks) {
-		Minecraft mc = Minecraft.getInstance();
-		Entity viewEntity = mc.getCameraEntity();
+	private static RayTraceResult pointedObject(Entity cameraEntity, PlayerEntity player, World level, float partialTicks) {
+		Vector3d start = cameraEntity.getEyePosition(partialTicks);
+		Vector3d look = cameraEntity.getViewVector(partialTicks);
+		Vector3d end = start.add(look.scale(ReachFixUtil.getBlockReach(player)));
+		RayTraceResult pointedBlock = level.clip(new RayTraceContext(start, end, BlockMode.OUTLINE, FluidMode.NONE, cameraEntity));
 
-		if (viewEntity == null) {
-			return null;
+		if (pointedBlock != null) {
+			RayTraceResult pointedEntity = getPointedEntity(cameraEntity, level, start, pointedBlock.getLocation(), partialTicks);
+			if (pointedEntity == null) {
+				return pointedBlock;
+			}
+			if (start.distanceTo(pointedEntity.getLocation()) <= ReachFixUtil.getEntityReach(player)) {
+				return pointedEntity;
+			}
+		} else {
+			Vector3d end1 = start.add(look.scale(ReachFixUtil.getEntityReach(player)));
+			RayTraceResult pointedEntity = getPointedEntity(cameraEntity, level, start, end1, partialTicks);
+			if (pointedEntity != null) {
+				return pointedEntity;
+			}
 		}
-		if (mc.level == null) {
-			return null;
-		}
 
-		double reach = ReachFixUtil.getBlockReach(mc.player);
-		RayTraceResult result = viewEntity.pick(reach, partialTicks, false);
-
-		if (result != null && result.getType() == Type.MISS) {
-			return null;
-		}
-
-		return result;
+		return BlockRayTraceResult.miss(end, null, new BlockPos(end));
 	}
 
 	@Unique
 	@Nullable
-	private static RayTraceResult getPointedEntity(float partialTicks) {
-		Minecraft mc = Minecraft.getInstance();
-		Entity viewEntity = mc.getCameraEntity();
-
-		if (viewEntity == null) {
-			return null;
-		}
-		if (mc.level == null) {
-			return null;
-		}
-
-		double reach = ReachFixUtil.getEntityReach(mc.player);
-		Vector3d dir = viewEntity.getViewVector(partialTicks).scale(reach);
-		AxisAlignedBB aabb = viewEntity.getBoundingBox();
-		aabb = aabb.expandTowards(dir.x, dir.y, dir.z);
-		aabb = aabb.inflate(1.0D);
-		List<Entity> possibleEntities = mc.level.getEntities(viewEntity, aabb, entity -> {
-			return !entity.isSpectator() && entity.isPickable();
+	private static RayTraceResult getPointedEntity(Entity cameraEntity, World level, Vector3d start, Vector3d end, float partialTicks) {
+		AxisAlignedBB aabb = new AxisAlignedBB(start, end).inflate(1.0D);
+		Entity rootVehicle = cameraEntity.getRootVehicle();
+		List<Entity> possibleEntities = level.getEntities(cameraEntity, aabb, entity -> {
+			return !entity.isSpectator() && entity.isPickable() && (rootVehicle != entity.getRootVehicle() || entity.canRiderInteract());
 		});
 
-		Vector3d start = viewEntity.getEyePosition(partialTicks);
-		Vector3d end = start.add(dir);
 		Vector3d result = null;
 		Entity pointedEntity = null;
 		double min = Double.MAX_VALUE;
 		for (Entity entity : possibleEntities) {
-			if (viewEntity.getRootVehicle() == entity.getRootVehicle() && !entity.canRiderInteract()) {
-				continue;
-			}
-
 			AxisAlignedBB entityAabb = getInterpolatedAABB(entity, partialTicks);
 			if (entityAabb.contains(start)) {
 				return new EntityRayTraceResult(entity, start);
@@ -150,9 +119,9 @@ public class MixinGameRenderer {
 	@Unique
 	private static AxisAlignedBB getInterpolatedAABB(Entity entity, float partialTicks) {
 		AxisAlignedBB aabb = entity.getBoundingBox();
-		float collisionBorderSize = entity.getPickRadius();
-		if (collisionBorderSize != 0.0F) {
-			aabb = aabb.inflate(collisionBorderSize);
+		float pickRadius = entity.getPickRadius();
+		if (pickRadius != 0.0F) {
+			aabb = aabb.inflate(pickRadius);
 		}
 		if (partialTicks != 0.0F) {
 			double x = -(entity.getX() - entity.xo) * (1.0D - partialTicks);
