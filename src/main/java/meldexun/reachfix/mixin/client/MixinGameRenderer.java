@@ -15,6 +15,8 @@ import meldexun.reachfix.util.ReachFixUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.item.ItemFrameEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -49,6 +51,12 @@ public class MixinGameRenderer {
 
 		mc.getProfiler().push("pick");
 		mc.hitResult = pointedObject(cameraEntity, mc.player, mc.level, partialTicks);
+		if (mc.hitResult instanceof EntityRayTraceResult) {
+			Entity entity = ((EntityRayTraceResult) mc.hitResult).getEntity();
+			if (entity instanceof LivingEntity || entity instanceof ItemFrameEntity) {
+				mc.crosshairPickEntity = entity;
+			}
+		}
 		mc.getProfiler().pop();
 	}
 
