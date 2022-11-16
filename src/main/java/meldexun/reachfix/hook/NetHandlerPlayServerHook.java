@@ -4,11 +4,12 @@ import meldexun.reachfix.util.ReachFixUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.NetHandlerPlayServer;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 
 public class NetHandlerPlayServerHook {
 
-	public static boolean isEntityInRange(NetHandlerPlayServer serverHandler, Entity entity) {
+	public static boolean isEntityInRange(NetHandlerPlayServer serverHandler, Entity entity, EnumHand hand) {
 		EntityPlayer player = serverHandler.player;
 		AxisAlignedBB aabb = entity.getEntityBoundingBox();
 		if (entity.getCollisionBorderSize() != 0.0F) {
@@ -22,7 +23,7 @@ public class NetHandlerPlayServerHook {
 		double y1 = aabb.minY + y - (player.posY + player.eyeHeight);
 		double z1 = aabb.minZ + z - player.posZ;
 		double distance = Math.sqrt(x1 * x1 + y1 * y1 + z1 * z1);
-		double reach = ReachFixUtil.getEntityReach(player);
+		double reach = ReachFixUtil.getEntityReach(player, hand);
 		return distance < reach + aabbRadius + 1.0D;
 	}
 

@@ -8,6 +8,7 @@ import meldexun.reachfix.integration.SpartanWeaponry;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.EnumHand;
 
 public class ReachFixUtil {
 
@@ -27,19 +28,19 @@ public class ReachFixUtil {
 		attribute.applyModifier(new AttributeModifier(REACH_UUID, REACH_STRING, (creative ? reachCreative : reach) - 5.0D, 0).setSaved(false));
 	}
 
-	public static double getBlockReach(EntityPlayer player) {
+	public static double getBlockReach(EntityPlayer player, EnumHand hand) {
 		double reach = player.getEntityAttribute(EntityPlayer.REACH_DISTANCE).getAttributeValue();
 		if (ReachFix.isSpartanWeaponryInstalled) {
-			reach += SpartanWeaponry.getReachBonus(player);
+			reach += SpartanWeaponry.getReachBonus(player, hand);
 		}
 		if (ReachFix.isBetterSurvivalInstalled) {
-			reach += BetterSurvival.getReachBonus(player);
+			reach += BetterSurvival.getReachBonus(player, hand);
 		}
 		return reach;
 	}
 
-	public static double getEntityReach(EntityPlayer player) {
-		return Math.max(getBlockReach(player) - 1.5D, 0.0D);
+	public static double getEntityReach(EntityPlayer player, EnumHand hand) {
+		return Math.max(getBlockReach(player, hand) - 1.5D, 0.0D);
 	}
 
 	public static boolean isEnabled() {

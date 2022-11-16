@@ -9,6 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EntitySelectors;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -33,16 +34,16 @@ public class EntityRendererHook {
 		}
 
 		mc.profiler.startSection("pick");
-		mc.objectMouseOver = pointedObject(viewEntity, mc.player, mc.world, partialTicks);
+		mc.objectMouseOver = pointedObject(viewEntity, mc.player, EnumHand.MAIN_HAND, mc.world, partialTicks);
 		mc.entityRenderer.pointedEntity = mc.objectMouseOver.entityHit;
 		mc.pointedEntity = mc.objectMouseOver.entityHit;
 		mc.profiler.endSection();
 	}
 
-	private static RayTraceResult pointedObject(Entity viewEntity, EntityPlayer player, World world, float partialTicks) {
+	public static RayTraceResult pointedObject(Entity viewEntity, EntityPlayer player, EnumHand hand, World world, float partialTicks) {
 		Vec3d start = viewEntity.getPositionEyes(partialTicks);
 		Vec3d look = viewEntity.getLook(partialTicks);
-		Vec3d end = start.add(look.scale(ReachFixUtil.getBlockReach(player)));
+		Vec3d end = start.add(look.scale(ReachFixUtil.getBlockReach(player, hand)));
 		RayTraceResult pointedBlock = world.rayTraceBlocks(start, end, false, false, false);
 
 		if (pointedBlock != null) {
@@ -50,11 +51,11 @@ public class EntityRendererHook {
 			if (pointedEntity == null) {
 				return pointedBlock;
 			}
-			if (start.distanceTo(pointedEntity.hitVec) <= ReachFixUtil.getEntityReach(player)) {
+			if (start.distanceTo(pointedEntity.hitVec) <= ReachFixUtil.getEntityReach(player, hand)) {
 				return pointedEntity;
 			}
 		} else {
-			Vec3d end1 = start.add(look.scale(ReachFixUtil.getEntityReach(player)));
+			Vec3d end1 = start.add(look.scale(ReachFixUtil.getEntityReach(player, hand)));
 			RayTraceResult pointedEntity = getPointedEntity(viewEntity, world, start, end1, partialTicks);
 			if (pointedEntity != null) {
 				return pointedEntity;
