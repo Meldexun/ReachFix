@@ -20,34 +20,25 @@ public class ReachFixClassTransformer extends AbstractClassTransformer implement
 	protected void registerTransformers() {
 		// @formatter:off
 		this.registerMethodTransformer("buq", "a", "(F)V", "net/minecraft/client/renderer/EntityRenderer", "getMouseOver", "(F)V", methodNode -> {
-			AbstractInsnNode popNode1 = new LabelNode();
-
 			methodNode.instructions.insert(ASMUtil.listOf(
-				new MethodInsnNode(Opcodes.INVOKESTATIC, "meldexun/reachfix/util/ReachFixUtil", "isEnabled", "()Z", false),
-				new JumpInsnNode(Opcodes.IFEQ, (LabelNode) popNode1),
 				new VarInsnNode(Opcodes.FLOAD, 1),
 				new MethodInsnNode(Opcodes.INVOKESTATIC, "meldexun/reachfix/hook/client/EntityRendererHook", "getMouseOver", "(F)V", false),
-				new InsnNode(Opcodes.RETURN),
-				popNode1
+				new InsnNode(Opcodes.RETURN)
 			));
 		});
 		this.registerMethodTransformer("pa", "a", "(Lli;)V", "net/minecraft/network/NetHandlerPlayServer", "processUseEntity", "(Lnet/minecraft/network/play/client/CPacketUseEntity;)V", methodNode -> {
 			AbstractInsnNode targetNode1 = ASMUtil.findFirstMethodCall(methodNode, Opcodes.INVOKEVIRTUAL, "oq", "D", "(Lvg;)Z", "net/minecraft/entity/player/EntityPlayerMP", "canEntityBeSeen", "(Lnet/minecraft/entity/Entity;)Z");
 			targetNode1 = ASMUtil.findLastInsnByType(methodNode, AbstractInsnNode.LABEL, targetNode1);
-			AbstractInsnNode popNode11 = new LabelNode();
 			AbstractInsnNode popNode12 = ASMUtil.findFirstMethodCall(methodNode, Opcodes.INVOKEVIRTUAL, "oq", "h", "(Lvg;)D", "net/minecraft/entity/player/EntityPlayerMP", "getDistanceSq", "(Lnet/minecraft/entity/Entity;)D");
 			popNode12 = ASMUtil.findFirstInsnByType(methodNode, AbstractInsnNode.LABEL, popNode12);
 
 			methodNode.instructions.insert(targetNode1, ASMUtil.listOf(
-				new MethodInsnNode(Opcodes.INVOKESTATIC, "meldexun/reachfix/util/ReachFixUtil", "isEnabled", "()Z", false),
-				new JumpInsnNode(Opcodes.IFEQ, (LabelNode) popNode11),
 				new VarInsnNode(Opcodes.ALOAD, 0),
 				new VarInsnNode(Opcodes.ALOAD, 3),
 				new FieldInsnNode(Opcodes.GETSTATIC, "net/minecraft/util/EnumHand", "MAIN_HAND", "Lnet/minecraft/util/EnumHand;"),
 				new MethodInsnNode(Opcodes.INVOKESTATIC, "meldexun/reachfix/hook/NetHandlerPlayServerHook", "isEntityInRange", "(Lnet/minecraft/network/NetHandlerPlayServer;Lnet/minecraft/entity/Entity;Lnet/minecraft/util/EnumHand;)Z", false),
 				new JumpInsnNode(Opcodes.IFNE, (LabelNode) popNode12),
-				new InsnNode(Opcodes.RETURN),
-				popNode11
+				new InsnNode(Opcodes.RETURN)
 			));
 		});
 		this.registerMethodTransformer("pa", "a", "(Llp;)V", "net/minecraft/network/NetHandlerPlayServer", "processPlayerDigging", "(Lnet/minecraft/network/play/client/CPacketPlayerDigging;)V", methodNode -> {
@@ -79,26 +70,14 @@ public class ReachFixClassTransformer extends AbstractClassTransformer implement
 
 		this.registerMethodTransformer("?", "?", "?", "com/oblivioussp/spartanweaponry/event/EventHandlerClient", "onMouseEvent", "(Lnet/minecraftforge/client/event/MouseEvent;)V", methodNode -> {
 			ASMUtil.LOGGER.info("Transforming method (SpartanWeaponry): EventHandlerClient#onMouseEvent(MouseEvent)");
-			AbstractInsnNode popNode1 = new LabelNode();
 
-			methodNode.instructions.insert(ASMUtil.listOf(
-				new MethodInsnNode(Opcodes.INVOKESTATIC, "meldexun/reachfix/util/ReachFixUtil", "isEnabled", "()Z", false),
-				new JumpInsnNode(Opcodes.IFEQ, (LabelNode) popNode1),
-				new InsnNode(Opcodes.RETURN),
-				popNode1
-			));
+			methodNode.instructions.insert(new InsnNode(Opcodes.RETURN));
 		});
 
 		this.registerMethodTransformer("?", "?", "?", "com/mujmajnkraft/bettersurvival/client/ModClientHandler", "onEvent", "(Lnet/minecraftforge/fml/common/gameevent/InputEvent;)V", methodNode -> {
 			ASMUtil.LOGGER.info("Transforming method (BetterSurvival): ModClientHandler#onEvent(InputEvent)");
-			AbstractInsnNode popNode1 = new LabelNode();
 
-			methodNode.instructions.insert(ASMUtil.listOf(
-				new MethodInsnNode(Opcodes.INVOKESTATIC, "meldexun/reachfix/util/ReachFixUtil", "isEnabled", "()Z", false),
-				new JumpInsnNode(Opcodes.IFEQ, (LabelNode) popNode1),
-				new InsnNode(Opcodes.RETURN),
-				popNode1
-			));
+			methodNode.instructions.insert(new InsnNode(Opcodes.RETURN));
 		});
 		// @formatter:on
 	}

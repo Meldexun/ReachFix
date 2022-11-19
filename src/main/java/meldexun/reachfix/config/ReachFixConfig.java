@@ -9,9 +9,6 @@ import net.minecraftforge.common.config.Config.RequiresWorldRestart;
 public class ReachFixConfig {
 
 	@RequiresWorldRestart
-	public static boolean enabled = true;
-
-	@RequiresWorldRestart
 	@RangeDouble(min = 0.0D, max = 1024.0D)
 	public static double entityReach = 3.0D;
 	@RequiresWorldRestart
