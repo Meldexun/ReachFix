@@ -46,13 +46,15 @@ public class ReachFix {
 	@EventHandler
 	public void onFMLServerStartingEvent(FMLServerStartingEvent event) {
 		ReachFixUtil.setEnabled(ReachFixConfig.enabled);
+		ReachFixUtil.setEntityReach(ReachFixConfig.entityReach);
+		ReachFixUtil.setEntityReachCreative(ReachFixConfig.entityReachCreative);
 		ReachFixUtil.setReach(ReachFixConfig.reach);
 		ReachFixUtil.setReachCreative(ReachFixConfig.reachCreative);
 	}
 
 	@SubscribeEvent
 	public void onPlayerLoggedInEvent(PlayerLoggedInEvent event) {
-		NETWORK.sendTo(new SPacketSyncConfig(ReachFixConfig.enabled, ReachFixConfig.reach, ReachFixConfig.reachCreative), (EntityPlayerMP) event.player);
+		NETWORK.sendTo(new SPacketSyncConfig(ReachFixConfig.enabled, ReachFixConfig.entityReach, ReachFixConfig.entityReachCreative, ReachFixConfig.reach, ReachFixConfig.reachCreative), (EntityPlayerMP) event.player);
 		ReachFixUtil.updateBaseReachModifier(event.player);
 	}
 

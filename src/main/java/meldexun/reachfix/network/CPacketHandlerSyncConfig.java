@@ -16,6 +16,8 @@ public class CPacketHandlerSyncConfig implements IMessageHandler<SPacketSyncConf
 	public IMessage onMessage(SPacketSyncConfig message, MessageContext ctx) {
 		FMLCommonHandler.instance().getWorldThread(ctx.netHandler).addScheduledTask(() -> {
 			ReachFixUtil.setEnabled(message.isEnabled());
+			ReachFixUtil.setEntityReach(message.getEntityReach());
+			ReachFixUtil.setEntityReachCreative(message.getEntityReachCreative());
 			ReachFixUtil.setReach(message.getReach());
 			ReachFixUtil.setReachCreative(message.getReachCreative());
 			ReachFixUtil.updateBaseReachModifier(getPlayer());

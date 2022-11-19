@@ -15,6 +15,8 @@ public class ReachFixUtil {
 	private static final UUID REACH_UUID = UUID.fromString("00d4860f-b487-4402-b424-373a52566330");
 	private static final String REACH_STRING = ReachFix.MODID + ":base_reach";
 	private static boolean enabled = true;
+	private static double entityReach = 3.0D;
+	private static double entityReachCreative = 3.5D;
 	private static double reach = 4.5D;
 	private static double reachCreative = 5.0D;
 
@@ -40,7 +42,7 @@ public class ReachFixUtil {
 	}
 
 	public static double getEntityReach(EntityPlayer player, EnumHand hand) {
-		return Math.max(getBlockReach(player, hand) - 1.5D, 0.0D);
+		return Math.max(getBlockReach(player, hand) + (player.isCreative() ? entityReachCreative - reachCreative : entityReach - reach), 0.0D);
 	}
 
 	public static boolean isEnabled() {
@@ -49,6 +51,14 @@ public class ReachFixUtil {
 
 	public static void setEnabled(boolean enabled) {
 		ReachFixUtil.enabled = enabled;
+	}
+
+	public static void setEntityReach(double entityReach) {
+		ReachFixUtil.entityReach = entityReach;
+	}
+
+	public static void setEntityReachCreative(double entityReachCreative) {
+		ReachFixUtil.entityReachCreative = entityReachCreative;
 	}
 
 	public static void setReach(double reach) {

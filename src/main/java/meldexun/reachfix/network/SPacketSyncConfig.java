@@ -6,6 +6,8 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 public class SPacketSyncConfig implements IMessage {
 
 	private boolean enabled;
+	private double entityReach;
+	private double entityReachCreative;
 	private double reach;
 	private double reachCreative;
 
@@ -13,8 +15,11 @@ public class SPacketSyncConfig implements IMessage {
 
 	}
 
-	public SPacketSyncConfig(boolean enabled, double reach, double reachCreative) {
+	public SPacketSyncConfig(boolean enabled, double entityReach, double entityReachCreative, double reach,
+			double reachCreative) {
 		this.enabled = enabled;
+		this.entityReach = entityReach;
+		this.entityReachCreative = entityReachCreative;
 		this.reach = reach;
 		this.reachCreative = reachCreative;
 	}
@@ -22,6 +27,8 @@ public class SPacketSyncConfig implements IMessage {
 	@Override
 	public void fromBytes(ByteBuf buf) {
 		enabled = buf.readBoolean();
+		entityReach = buf.readDouble();
+		entityReachCreative = buf.readDouble();
 		reach = buf.readDouble();
 		reachCreative = buf.readDouble();
 	}
@@ -29,12 +36,22 @@ public class SPacketSyncConfig implements IMessage {
 	@Override
 	public void toBytes(ByteBuf buf) {
 		buf.writeBoolean(enabled);
+		buf.writeDouble(entityReach);
+		buf.writeDouble(entityReachCreative);
 		buf.writeDouble(reach);
 		buf.writeDouble(reachCreative);
 	}
 
 	public boolean isEnabled() {
 		return enabled;
+	}
+
+	public double getEntityReach() {
+		return entityReach;
+	}
+
+	public double getEntityReachCreative() {
+		return entityReachCreative;
 	}
 
 	public double getReach() {
