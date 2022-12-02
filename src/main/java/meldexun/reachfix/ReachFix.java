@@ -4,7 +4,9 @@ import meldexun.reachfix.config.ReachFixConfig;
 import meldexun.reachfix.network.CPacketHandlerSyncConfig;
 import meldexun.reachfix.network.SPacketSyncConfig;
 import meldexun.reachfix.util.ReachFixUtil;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
@@ -71,6 +73,16 @@ public class ReachFix {
 	public void onConfigChangedEvent(ConfigChangedEvent.OnConfigChangedEvent event) {
 		if (event.getModID().equals(MODID)) {
 			ConfigManager.sync(MODID, Config.Type.INSTANCE);
+
+			IntegratedServer server = Minecraft.getMinecraft().getIntegratedServer();
+			if (server != null) {
+				ReachFixUtil.setEntityReach(ReachFixConfig.entityReach);
+				ReachFixUtil.setEntityReachCreative(ReachFixConfig.entityReachCreative);
+				ReachFixUtil.setReach(ReachFixConfig.reach);
+				ReachFixUtil.setReachCreative(ReachFixConfig.reachCreative);
+				NETWORK.sendToAll(new SPacketSyncConfig(ReachFixConfig.entityReach, ReachFixConfig.entityReachCreative, ReachFixConfig.reach, ReachFixConfig.reachCreative));
+				server.getPlayerList().getPlayers().forEach(ReachFixUtil::updateBaseReachModifier);
+			}
 		}
 	}
 
