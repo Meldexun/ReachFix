@@ -43,26 +43,28 @@ public class EntityRendererHook {
 	public static RayTraceResult pointedObject(Entity viewEntity, EntityPlayer player, EnumHand hand, World world, float partialTicks) {
 		Vec3d start = viewEntity.getPositionEyes(partialTicks);
 		Vec3d look = viewEntity.getLook(partialTicks);
-		Vec3d end = start.add(look.scale(ReachFixUtil.getBlockReach(player, hand)));
-		RayTraceResult pointedBlock = world.rayTraceBlocks(start, end, false, false, false);
+		Vec3d endBlock = start.add(look.scale(ReachFixUtil.getBlockReach(player, hand)));
+		RayTraceResult pointedBlock = world.rayTraceBlocks(start, endBlock, false, false, false);
+		Vec3d endEntity = start.add(look.scale(ReachFixUtil.getEntityReach(player, hand)));
+		RayTraceResult pointedEntity = getPointedEntity(viewEntity, world, start, endEntity, partialTicks);
 
 		if (pointedBlock != null) {
-			RayTraceResult pointedEntity = getPointedEntity(viewEntity, world, start, pointedBlock.hitVec, partialTicks);
-			if (pointedEntity == null) {
+			if (pointedEntity != null) {
+				double distBlock = start.squareDistanceTo(pointedBlock.hitVec);
+				double distEntity = start.squareDistanceTo(pointedEntity.hitVec);
+				if (distBlock < distEntity) {
+					return pointedBlock;
+				} else {
+					return pointedEntity;
+				}
+			} else {
 				return pointedBlock;
 			}
-			if (start.distanceTo(pointedEntity.hitVec) <= ReachFixUtil.getEntityReach(player, hand)) {
-				return pointedEntity;
-			}
-		} else {
-			Vec3d end1 = start.add(look.scale(ReachFixUtil.getEntityReach(player, hand)));
-			RayTraceResult pointedEntity = getPointedEntity(viewEntity, world, start, end1, partialTicks);
-			if (pointedEntity != null) {
-				return pointedEntity;
-			}
+		} else if (pointedEntity != null) {
+			return pointedEntity;
 		}
 
-		return new RayTraceResult(Type.MISS, end, null, new BlockPos(end));
+		return new RayTraceResult(Type.MISS, endBlock, null, new BlockPos(endBlock));
 	}
 
 	@Nullable
