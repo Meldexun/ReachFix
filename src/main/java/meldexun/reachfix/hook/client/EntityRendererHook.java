@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import meldexun.reachfix.util.BoundingBoxUtil;
 import meldexun.reachfix.util.ReachFixUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
@@ -48,8 +49,8 @@ public class EntityRendererHook {
 		Vec3d endEntity = start.add(look.scale(ReachFixUtil.getEntityReach(player, hand)));
 		RayTraceResult pointedEntity = getPointedEntity(viewEntity, world, start, endEntity, partialTicks);
 
-		if (pointedBlock != null) {
-			if (pointedEntity != null) {
+		if (!isNullOrMiss(pointedBlock)) {
+			if (!isNullOrMiss(pointedEntity)) {
 				double distBlock = start.squareDistanceTo(pointedBlock.hitVec);
 				double distEntity = start.squareDistanceTo(pointedEntity.hitVec);
 				if (distBlock < distEntity) {
@@ -60,7 +61,7 @@ public class EntityRendererHook {
 			} else {
 				return pointedBlock;
 			}
-		} else if (pointedEntity != null) {
+		} else if (!isNullOrMiss(pointedEntity)) {
 			return pointedEntity;
 		}
 
@@ -88,13 +89,13 @@ public class EntityRendererHook {
 		Entity pointedEntity = null;
 		double min = Double.MAX_VALUE;
 		for (Entity entity : possibleEntities) {
-			AxisAlignedBB entityAabb = getInterpolatedAABB(entity, partialTicks);
+			AxisAlignedBB entityAabb = BoundingBoxUtil.getInteractionBoundingBox(entity, partialTicks);
 			if (entityAabb.contains(start)) {
 				return new RayTraceResult(entity, start);
 			}
 
 			RayTraceResult rtr = entityAabb.calculateIntercept(start, end);
-			if (rtr == null || rtr.typeOfHit == Type.MISS) {
+			if (isNullOrMiss(rtr)) {
 				continue;
 			}
 
@@ -106,25 +107,15 @@ public class EntityRendererHook {
 			}
 		}
 
-		if (result == null || result.typeOfHit == Type.MISS) {
+		if (isNullOrMiss(result)) {
 			return null;
 		}
 
 		return new RayTraceResult(pointedEntity, result.hitVec);
 	}
 
-	private static AxisAlignedBB getInterpolatedAABB(Entity entity, float partialTicks) {
-		AxisAlignedBB aabb = entity.getEntityBoundingBox();
-		float collisionBorderSize = entity.getCollisionBorderSize();
-		if (collisionBorderSize != 0.0F) {
-			aabb = aabb.grow(collisionBorderSize);
-		}
-		if (partialTicks != 1.0F) {
-			double x = -(entity.posX - entity.lastTickPosX) * (1.0D - partialTicks);
-			double y = -(entity.posY - entity.lastTickPosY) * (1.0D - partialTicks);
-			double z = -(entity.posZ - entity.lastTickPosZ) * (1.0D - partialTicks);
-			aabb = aabb.offset(x, y, z);
-		}
-		return aabb;
+	private static boolean isNullOrMiss(RayTraceResult rayTraceResult) {
+		return rayTraceResult == null || rayTraceResult.typeOfHit == Type.MISS;
 	}
+
 }
