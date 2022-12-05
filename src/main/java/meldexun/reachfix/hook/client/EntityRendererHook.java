@@ -119,7 +119,7 @@ public class EntityRendererHook {
 		if (collisionBorderSize != 0.0F) {
 			aabb = aabb.grow(collisionBorderSize);
 		}
-		if (partialTicks != 0.0F) {
+		if (partialTicks != 1.0F) {
 			double x = -(entity.posX - entity.lastTickPosX) * (1.0D - partialTicks);
 			double y = -(entity.posY - entity.lastTickPosY) * (1.0D - partialTicks);
 			double z = -(entity.posZ - entity.lastTickPosZ) * (1.0D - partialTicks);
