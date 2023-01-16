@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import meldexun.reachfix.ReachFix;
 import meldexun.reachfix.integration.BetterSurvival;
+import meldexun.reachfix.config.ReachFixConfig;
 import meldexun.reachfix.integration.SpartanWeaponry;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
@@ -14,19 +15,16 @@ public class ReachFixUtil {
 
 	private static final UUID REACH_UUID = UUID.fromString("00d4860f-b487-4402-b424-373a52566330");
 	private static final String REACH_STRING = ReachFix.MODID + ":base_reach";
-	private static double entityReach = 3.0D;
-	private static double entityReachCreative = 3.5D;
-	private static double reach = 4.5D;
-	private static double reachCreative = 5.0D;
 
 	public static void updateBaseReachModifier(EntityPlayer player) {
 		updateBaseReachModifier(player, player.isCreative());
 	}
 
 	public static void updateBaseReachModifier(EntityPlayer player, boolean creative) {
+		ReachFixConfig config = ReachFixConfig.getInstance();
 		IAttributeInstance attribute = player.getEntityAttribute(EntityPlayer.REACH_DISTANCE);
 		attribute.removeModifier(REACH_UUID);
-		attribute.applyModifier(new AttributeModifier(REACH_UUID, REACH_STRING, (creative ? reachCreative : reach) - 5.0D, 0).setSaved(false));
+		attribute.applyModifier(new AttributeModifier(REACH_UUID, REACH_STRING, (creative ? config.reachCreative : config.reach) - 5.0D, 0).setSaved(false));
 	}
 
 	public static double getBlockReach(EntityPlayer player, EnumHand hand) {
@@ -41,23 +39,8 @@ public class ReachFixUtil {
 	}
 
 	public static double getEntityReach(EntityPlayer player, EnumHand hand) {
-		return Math.max(getBlockReach(player, hand) + (player.isCreative() ? entityReachCreative - reachCreative : entityReach - reach), 0.0D);
-	}
-
-	public static void setEntityReach(double entityReach) {
-		ReachFixUtil.entityReach = entityReach;
-	}
-
-	public static void setEntityReachCreative(double entityReachCreative) {
-		ReachFixUtil.entityReachCreative = entityReachCreative;
-	}
-
-	public static void setReach(double reach) {
-		ReachFixUtil.reach = reach;
-	}
-
-	public static void setReachCreative(double reachCreative) {
-		ReachFixUtil.reachCreative = reachCreative;
+		ReachFixConfig config = ReachFixConfig.getInstance();
+		return Math.max(getBlockReach(player, hand) + (player.isCreative() ? (config.entityReachCreative - config.reachCreative) : (config.entityReach - config.reach)), 0.0D);
 	}
 
 }

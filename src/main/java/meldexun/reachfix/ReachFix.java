@@ -1,5 +1,11 @@
 package meldexun.reachfix;
 
+import javax.annotation.Nullable;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import meldexun.configutil.ConfigUtil;
 import meldexun.reachfix.config.ReachFixConfig;
 import meldexun.reachfix.network.CPacketHandlerSyncConfig;
 import meldexun.reachfix.network.SPacketSyncConfig;
@@ -29,6 +35,7 @@ import net.minecraftforge.fml.relauncher.Side;
 public class ReachFix {
 
 	public static final String MODID = "reachfix";
+	public static final Logger LOGGER = LogManager.getLogger(MODID);
 	public static final SimpleNetworkWrapper NETWORK = NetworkRegistry.INSTANCE.newSimpleChannel(MODID);
 	public static boolean isSpartanWeaponryInstalled;
 	public static boolean isBetterSurvivalInstalled;
@@ -47,15 +54,12 @@ public class ReachFix {
 
 	@EventHandler
 	public void onFMLServerStartingEvent(FMLServerStartingEvent event) {
-		ReachFixUtil.setEntityReach(ReachFixConfig.entityReach);
-		ReachFixUtil.setEntityReachCreative(ReachFixConfig.entityReachCreative);
-		ReachFixUtil.setReach(ReachFixConfig.reach);
-		ReachFixUtil.setReachCreative(ReachFixConfig.reachCreative);
+		loadLocalConfig(true);
 	}
 
 	@SubscribeEvent
 	public void onPlayerLoggedInEvent(PlayerLoggedInEvent event) {
-		NETWORK.sendTo(new SPacketSyncConfig(ReachFixConfig.entityReach, ReachFixConfig.entityReachCreative, ReachFixConfig.reach, ReachFixConfig.reachCreative), (EntityPlayerMP) event.player);
+		sendServerConfig((EntityPlayerMP) event.player);
 		ReachFixUtil.updateBaseReachModifier(event.player);
 	}
 
@@ -74,15 +78,38 @@ public class ReachFix {
 		if (event.getModID().equals(MODID)) {
 			ConfigManager.sync(MODID, Config.Type.INSTANCE);
 
-			IntegratedServer server = Minecraft.getMinecraft().getIntegratedServer();
+			Minecraft mc = Minecraft.getMinecraft();
+			IntegratedServer server = mc.getIntegratedServer();
+
+			loadLocalConfig(mc.world == null || server != null);
 			if (server != null) {
-				ReachFixUtil.setEntityReach(ReachFixConfig.entityReach);
-				ReachFixUtil.setEntityReachCreative(ReachFixConfig.entityReachCreative);
-				ReachFixUtil.setReach(ReachFixConfig.reach);
-				ReachFixUtil.setReachCreative(ReachFixConfig.reachCreative);
-				NETWORK.sendToAll(new SPacketSyncConfig(ReachFixConfig.entityReach, ReachFixConfig.entityReachCreative, ReachFixConfig.reach, ReachFixConfig.reachCreative));
+				sendServerConfig(null);
 				server.getPlayerList().getPlayers().forEach(ReachFixUtil::updateBaseReachModifier);
 			}
+		}
+	}
+
+	public static void loadLocalConfig(boolean loadAllSettings) {
+		try {
+			if (loadAllSettings) {
+				ConfigUtil.copyAllSettings(ReachFixConfig.MASTER_CONFIG, ReachFixConfig.SLAVE_CONFIG);
+			} else {
+				ConfigUtil.copyClientSettings(ReachFixConfig.MASTER_CONFIG, ReachFixConfig.SLAVE_CONFIG);
+			}
+		} catch (ReflectiveOperationException e) {
+			LOGGER.error("Failed to copy config", e);
+		}
+	}
+
+	public static void sendServerConfig(@Nullable EntityPlayerMP player) {
+		try {
+			if (player != null) {
+				NETWORK.sendTo(new SPacketSyncConfig(ReachFixConfig.MASTER_CONFIG), (EntityPlayerMP) player);
+			} else {
+				NETWORK.sendToAll(new SPacketSyncConfig(ReachFixConfig.MASTER_CONFIG));
+			}
+		} catch (ReflectiveOperationException e) {
+			LOGGER.error("Failed to send server config", e);
 		}
 	}
 

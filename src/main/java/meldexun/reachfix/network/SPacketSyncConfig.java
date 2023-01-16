@@ -1,56 +1,36 @@
 package meldexun.reachfix.network;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import meldexun.configutil.ConfigUtil;
+import meldexun.reachfix.config.ReachFixConfig;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 
 public class SPacketSyncConfig implements IMessage {
 
-	private double entityReach;
-	private double entityReachCreative;
-	private double reach;
-	private double reachCreative;
+	private ByteBuf buffer;
 
 	public SPacketSyncConfig() {
 
 	}
 
-	public SPacketSyncConfig(double entityReach, double entityReachCreative, double reach, double reachCreative) {
-		this.entityReach = entityReach;
-		this.entityReachCreative = entityReachCreative;
-		this.reach = reach;
-		this.reachCreative = reachCreative;
+	public SPacketSyncConfig(ReachFixConfig config) throws ReflectiveOperationException {
+		this.buffer = Unpooled.buffer();
+		ConfigUtil.writeServerSettings(config, buffer);
 	}
 
 	@Override
 	public void fromBytes(ByteBuf buf) {
-		entityReach = buf.readDouble();
-		entityReachCreative = buf.readDouble();
-		reach = buf.readDouble();
-		reachCreative = buf.readDouble();
+		this.buffer = buf.readBytes(buf.readableBytes());
 	}
 
 	@Override
 	public void toBytes(ByteBuf buf) {
-		buf.writeDouble(entityReach);
-		buf.writeDouble(entityReachCreative);
-		buf.writeDouble(reach);
-		buf.writeDouble(reachCreative);
+		buf.writeBytes(this.buffer);
 	}
 
-	public double getEntityReach() {
-		return entityReach;
-	}
-
-	public double getEntityReachCreative() {
-		return entityReachCreative;
-	}
-
-	public double getReach() {
-		return reach;
-	}
-
-	public double getReachCreative() {
-		return reachCreative;
+	public ByteBuf getBuffer() {
+		return buffer;
 	}
 
 }

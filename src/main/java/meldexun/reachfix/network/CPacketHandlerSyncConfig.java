@@ -1,5 +1,8 @@
 package meldexun.reachfix.network;
 
+import meldexun.configutil.ConfigUtil;
+import meldexun.reachfix.ReachFix;
+import meldexun.reachfix.config.ReachFixConfig;
 import meldexun.reachfix.util.ReachFixUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
@@ -15,10 +18,11 @@ public class CPacketHandlerSyncConfig implements IMessageHandler<SPacketSyncConf
 	@Override
 	public IMessage onMessage(SPacketSyncConfig message, MessageContext ctx) {
 		FMLCommonHandler.instance().getWorldThread(ctx.netHandler).addScheduledTask(() -> {
-			ReachFixUtil.setEntityReach(message.getEntityReach());
-			ReachFixUtil.setEntityReachCreative(message.getEntityReachCreative());
-			ReachFixUtil.setReach(message.getReach());
-			ReachFixUtil.setReachCreative(message.getReachCreative());
+			try {
+				ConfigUtil.readServerSettings(ReachFixConfig.SLAVE_CONFIG, message.getBuffer());
+			} catch (ReflectiveOperationException e) {
+				ReachFix.LOGGER.error("Failed to read server config", e);
+			}
 			ReachFixUtil.updateBaseReachModifier(getPlayer());
 		});
 		return null;
