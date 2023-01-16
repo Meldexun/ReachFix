@@ -73,12 +73,6 @@ public class ReachFixClassTransformer extends AbstractClassTransformer implement
 
 			methodNode.instructions.insert(new InsnNode(Opcodes.RETURN));
 		});
-
-		this.registerMethodTransformer("?", "?", "?", "com/mujmajnkraft/bettersurvival/client/ModClientHandler", "onEvent", "(Lnet/minecraftforge/fml/common/gameevent/InputEvent;)V", methodNode -> {
-			ASMUtil.LOGGER.info("Transforming method (BetterSurvival): ModClientHandler#onEvent(InputEvent)");
-
-			methodNode.instructions.insert(new InsnNode(Opcodes.RETURN));
-		});
 		// @formatter:on
 	}
 

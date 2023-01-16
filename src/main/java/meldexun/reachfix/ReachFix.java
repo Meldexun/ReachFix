@@ -38,7 +38,6 @@ public class ReachFix {
 	public static final Logger LOGGER = LogManager.getLogger(MODID);
 	public static final SimpleNetworkWrapper NETWORK = NetworkRegistry.INSTANCE.newSimpleChannel(MODID);
 	public static boolean isSpartanWeaponryInstalled;
-	public static boolean isBetterSurvivalInstalled;
 
 	@EventHandler
 	public void onFMLConstructionEvent(FMLConstructionEvent event) {
@@ -49,7 +48,6 @@ public class ReachFix {
 	@EventHandler
 	public void onFMLPostInitializationEvent(FMLPostInitializationEvent event) {
 		isSpartanWeaponryInstalled = Loader.isModLoaded("spartanweaponry");
-		isBetterSurvivalInstalled = Loader.isModLoaded("mujmajnkraftsbettersurvival");
 	}
 
 	@EventHandler

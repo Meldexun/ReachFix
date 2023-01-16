@@ -46,7 +46,6 @@ dependencies {
     includedDependencies 'meldexun:ConfigUtil:1.0.0@jar'
 
     buildDependencies 'curse.maven:SpartanWeaponry-278141:3634012'
-    buildDependencies 'curse.maven:BetterSurvival-260360:2832583'
 }
 
 minecraft {

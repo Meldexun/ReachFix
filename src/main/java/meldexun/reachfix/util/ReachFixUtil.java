@@ -3,7 +3,6 @@ package meldexun.reachfix.util;
 import java.util.UUID;
 
 import meldexun.reachfix.ReachFix;
-import meldexun.reachfix.integration.BetterSurvival;
 import meldexun.reachfix.config.ReachFixConfig;
 import meldexun.reachfix.integration.SpartanWeaponry;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
@@ -31,9 +30,6 @@ public class ReachFixUtil {
 		double reach = player.getEntityAttribute(EntityPlayer.REACH_DISTANCE).getAttributeValue();
 		if (ReachFix.isSpartanWeaponryInstalled) {
 			reach += SpartanWeaponry.getReachBonus(player, hand);
-		}
-		if (ReachFix.isBetterSurvivalInstalled) {
-			reach += BetterSurvival.getReachBonus(player, hand);
 		}
 		return reach;
 	}
