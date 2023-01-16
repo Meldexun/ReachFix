@@ -33,4 +33,8 @@ public class ReachFixConfig {
 	@RangeDouble(min = 0.0D, max = 1024.0D)
 	public double reachCreative = 5.0D;
 
+	@ConfigUtil.Sync
+	@Comment("When enabled 'canRiderInteract' is ignored when the players eyes are inside the entity that is riding or being ridden by the player.")
+	public boolean forceInteractionInsideVehicles = true;
+
 }

@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import meldexun.reachfix.config.ReachFixConfig;
 import meldexun.reachfix.util.BoundingBoxUtil;
 import meldexun.reachfix.util.ReachFixUtil;
 import net.minecraft.client.Minecraft;
@@ -79,13 +80,7 @@ public class EntityRendererHook {
 			if (!EntitySelectors.NOT_SPECTATING.apply(entity)) {
 				return false;
 			}
-			if (!entity.canBeCollidedWith()) {
-				return false;
-			}
-			if (lowestRidingEntity != entity.getLowestRidingEntity()) {
-				return true;
-			}
-			return entity.canRiderInteract();
+			return entity.canBeCollidedWith();
 		});
 
 		RayTraceResult result = null;
@@ -93,6 +88,13 @@ public class EntityRendererHook {
 		double min = Double.MAX_VALUE;
 		for (Entity entity : possibleEntities) {
 			AxisAlignedBB entityAabb = BoundingBoxUtil.getInteractionBoundingBox(entity, partialTicks);
+			if (lowestRidingEntity == entity.getLowestRidingEntity() && !entity.canRiderInteract()) {
+				if (ReachFixConfig.getInstance().forceInteractionInsideVehicles && entityAabb.contains(start)) {
+					return new RayTraceResult(entity, start);
+				}
+				continue;
+			}
+
 			if (entityAabb.contains(start)) {
 				return new RayTraceResult(entity, start);
 			}
