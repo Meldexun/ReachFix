@@ -1,16 +1,9 @@
-buildscript {
-    repositories {
-        maven { url = 'https://maven.minecraftforge.net' }
-        mavenCentral()
-    }
-    dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: "${forge_gradle_version}", changing: true
-    }
+plugins {
+    id 'eclipse'
+    id 'net.minecraftforge.gradle' version "${forge_gradle_version}"
 }
-apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'eclipse'
 
-version = "${mc_version}-${mod_version}-${mod_stage}"
+version = "${mod_stage}" != "" ? "${mc_version}-${mod_version}-${mod_stage}" : "${mc_version}-${mod_version}"
 group = "meldexun.${mod_id}"
 archivesBaseName = "${mod_name}"
 
@@ -51,9 +44,10 @@ dependencies {
 minecraft {
     mappings channel: "${mappings_channel}", version: "${mappings_version}"
 
-    def atDepFileTree = files(configurations.atDependencies.collect { zipTree(it) }).getAsFileTree()
     accessTransformer = files(
-        'src/main/resources/META-INF/accesstransformer.cfg'
+        'src/main/resources/META-INF/accesstransformer.cfg',
+        files(configurations.atDependencies.collect { zipTree(it) }).getAsFileTree().matching {
+        }
     )
 
     runs {
