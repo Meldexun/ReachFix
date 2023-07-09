@@ -42,7 +42,7 @@ repositories {
 
 dependencies {
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
-    includedDependencies 'meldexun:ASMUtil:1.0.0@jar'
+    includedDependencies 'meldexun:ASMUtil:2.0.1@jar'
     includedDependencies 'meldexun:ConfigUtil:1.0.0@jar'
 
     buildDependencies 'curse.maven:SpartanWeaponry-278141:3634012'

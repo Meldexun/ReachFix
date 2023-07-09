@@ -1,36 +1,37 @@
 package meldexun.reachfix.asm;
 
+import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
-import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
-import meldexun.asmutil.ASMUtil;
-import meldexun.asmutil.transformer.clazz.AbstractClassTransformer;
+import meldexun.asmutil2.ASMUtil;
+import meldexun.asmutil2.HashMapClassNodeClassTransformer;
+import meldexun.asmutil2.IClassTransformerRegistry;
 import net.minecraft.launchwrapper.IClassTransformer;
 
-public class ReachFixClassTransformer extends AbstractClassTransformer implements IClassTransformer {
+public class ReachFixClassTransformer extends HashMapClassNodeClassTransformer implements IClassTransformer {
 
 	@Override
-	protected void registerTransformers() {
+	protected void registerTransformers(IClassTransformerRegistry registry) {
 		// @formatter:off
-		this.registerMethodTransformer("buq", "a", "(F)V", "net/minecraft/client/renderer/EntityRenderer", "getMouseOver", "(F)V", methodNode -> {
+		registry.add("net.minecraft.client.renderer.EntityRenderer", "getMouseOver", "(F)V", "a", "(F)V", ClassWriter.COMPUTE_FRAMES, methodNode -> {
 			methodNode.instructions.insert(ASMUtil.listOf(
 				new VarInsnNode(Opcodes.FLOAD, 1),
 				new MethodInsnNode(Opcodes.INVOKESTATIC, "meldexun/reachfix/hook/client/EntityRendererHook", "getMouseOver", "(F)V", false),
 				new InsnNode(Opcodes.RETURN)
 			));
 		});
-		this.registerMethodTransformer("pa", "a", "(Lli;)V", "net/minecraft/network/NetHandlerPlayServer", "processUseEntity", "(Lnet/minecraft/network/play/client/CPacketUseEntity;)V", methodNode -> {
-			AbstractInsnNode targetNode1 = ASMUtil.findFirstMethodCall(methodNode, Opcodes.INVOKEVIRTUAL, "oq", "D", "(Lvg;)Z", "net/minecraft/entity/player/EntityPlayerMP", "canEntityBeSeen", "(Lnet/minecraft/entity/Entity;)Z");
-			targetNode1 = ASMUtil.findLastInsnByType(methodNode, AbstractInsnNode.LABEL, targetNode1);
-			AbstractInsnNode popNode12 = ASMUtil.findFirstMethodCall(methodNode, Opcodes.INVOKEVIRTUAL, "oq", "h", "(Lvg;)D", "net/minecraft/entity/player/EntityPlayerMP", "getDistanceSq", "(Lnet/minecraft/entity/Entity;)D");
-			popNode12 = ASMUtil.findFirstInsnByType(methodNode, AbstractInsnNode.LABEL, popNode12);
+		registry.add("net.minecraft.network.NetHandlerPlayServer", "processUseEntity", "(Lnet/minecraft/network/play/client/CPacketUseEntity;)V", "a", "(Lli;)V", ClassWriter.COMPUTE_FRAMES, methodNode -> {
+			AbstractInsnNode targetNode1 = ASMUtil.first(methodNode).methodInsn(Opcodes.INVOKEVIRTUAL, "oq", "D", "(Lvg;)Z", "net/minecraft/entity/player/EntityPlayerMP", "canEntityBeSeen", "(Lnet/minecraft/entity/Entity;)Z").find();
+			targetNode1 = ASMUtil.prev(targetNode1).type(LabelNode.class).find();
+			AbstractInsnNode popNode12 = ASMUtil.first(methodNode).methodInsn(Opcodes.INVOKEVIRTUAL, "oq", "h", "(Lvg;)D", "net/minecraft/entity/player/EntityPlayerMP", "getDistanceSq", "(Lnet/minecraft/entity/Entity;)D").find();
+			popNode12 = ASMUtil.next(popNode12).type(LabelNode.class).find();
 
 			methodNode.instructions.insert(targetNode1, ASMUtil.listOf(
 				new VarInsnNode(Opcodes.ALOAD, 0),
@@ -41,11 +42,8 @@ public class ReachFixClassTransformer extends AbstractClassTransformer implement
 				new InsnNode(Opcodes.RETURN)
 			));
 		});
-		this.registerMethodTransformer("pa", "a", "(Llp;)V", "net/minecraft/network/NetHandlerPlayServer", "processPlayerDigging", "(Lnet/minecraft/network/play/client/CPacketPlayerDigging;)V", methodNode -> {
-			AbstractInsnNode targetNode1 = ASMUtil.findFirstInsnByType(methodNode, AbstractInsnNode.LDC_INSN);
-			while (!((LdcInsnNode) targetNode1).cst.equals(1.5D)) {
-				targetNode1 = ASMUtil.findFirstInsnByType(methodNode, AbstractInsnNode.LDC_INSN, targetNode1);
-			}
+		registry.add("net.minecraft.network.NetHandlerPlayServer", "processPlayerDigging", "(Lnet/minecraft/network/play/client/CPacketPlayerDigging;)V", "a", "(Llp;)V", 0, methodNode -> {
+			AbstractInsnNode targetNode1 = ASMUtil.first(methodNode).ldcInsn(1.5D).find();
 
 			methodNode.instructions.insert(targetNode1, ASMUtil.listOf(
 				new VarInsnNode(Opcodes.ALOAD, 0),
@@ -53,14 +51,14 @@ public class ReachFixClassTransformer extends AbstractClassTransformer implement
 				new InsnNode(Opcodes.DADD)
 			));
 		});
-		this.registerMethodTransformer("bsc", "a", "(Lams;)V", "net/minecraft/client/network/NetworkPlayerInfo", "setGameType", "(Lnet/minecraft/world/GameType;)V", methodNode -> {
+		registry.add("net.minecraft.client.network.NetworkPlayerInfo", "setGameType", "(Lnet/minecraft/world/GameType;)V", "a", "(Lams;)V", 0, methodNode -> {
 			methodNode.instructions.insert(ASMUtil.listOf(
 				new VarInsnNode(Opcodes.ALOAD, 0),
 				new VarInsnNode(Opcodes.ALOAD, 1),
 				new MethodInsnNode(Opcodes.INVOKESTATIC, "meldexun/reachfix/hook/client/NetworkPlayerInfoHook", "onUpdateGameMode", "(Lnet/minecraft/client/network/NetworkPlayerInfo;Lnet/minecraft/world/GameType;)V", false)
 			));
 		});
-		this.registerMethodTransformer("or", "a", "(Lams;)V", "net/minecraft/server/management/PlayerInteractionManager", "setGameType", "(Lnet/minecraft/world/GameType;)V", methodNode -> {
+		registry.add("net.minecraft.server.management.PlayerInteractionManager", "setGameType", "(Lnet/minecraft/world/GameType;)V", "a", "(Lams;)V", 0, methodNode -> {
 			methodNode.instructions.insert(ASMUtil.listOf(
 				new VarInsnNode(Opcodes.ALOAD, 0),
 				new VarInsnNode(Opcodes.ALOAD, 1),
@@ -68,7 +66,7 @@ public class ReachFixClassTransformer extends AbstractClassTransformer implement
 			));
 		});
 
-		this.registerMethodTransformer("?", "?", "?", "com/oblivioussp/spartanweaponry/event/EventHandlerClient", "onMouseEvent", "(Lnet/minecraftforge/client/event/MouseEvent;)V", methodNode -> {
+		registry.add("com.oblivioussp.spartanweaponry.event.EventHandlerClient", "onMouseEvent", "(Lnet/minecraftforge/client/event/MouseEvent;)V", ClassWriter.COMPUTE_FRAMES, methodNode -> {
 			ASMUtil.LOGGER.info("Transforming method (SpartanWeaponry): EventHandlerClient#onMouseEvent(MouseEvent)");
 
 			methodNode.instructions.insert(new InsnNode(Opcodes.RETURN));
