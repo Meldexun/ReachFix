@@ -21,10 +21,14 @@ public class ReachFixClassTransformer extends HashMapClassNodeClassTransformer i
 	protected void registerTransformers(IClassTransformerRegistry registry) {
 		// @formatter:off
 		registry.add("net.minecraft.client.renderer.EntityRenderer", "getMouseOver", "(F)V", "a", "(F)V", ClassWriter.COMPUTE_FRAMES, methodNode -> {
+			LabelNode label = new LabelNode();
 			methodNode.instructions.insert(ASMUtil.listOf(
 				new VarInsnNode(Opcodes.FLOAD, 1),
 				new MethodInsnNode(Opcodes.INVOKESTATIC, "meldexun/reachfix/hook/client/EntityRendererHook", "getMouseOver", "(F)V", false),
-				new InsnNode(Opcodes.RETURN)
+				new InsnNode(Opcodes.ICONST_1),
+				new JumpInsnNode(Opcodes.IFEQ, label),
+				new InsnNode(Opcodes.RETURN),
+				label
 			));
 		});
 		registry.add("net.minecraft.network.NetHandlerPlayServer", "processUseEntity", "(Lnet/minecraft/network/play/client/CPacketUseEntity;)V", "a", "(Lli;)V", ClassWriter.COMPUTE_FRAMES, methodNode -> {
