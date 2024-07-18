@@ -9,6 +9,7 @@ import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.MathHelper;
 
 public class ReachFixUtil {
 
@@ -41,7 +42,7 @@ public class ReachFixUtil {
 		if (ReachFix.isSpartanWeaponryInstalled) {
 			reach += SpartanWeaponry.getReachBonus(player, hand);
 		}
-		return Math.max(reach, 0.0D);
+		return MathHelper.clamp(reach, 0.0D, 1024.0D);
 	}
 
 }
