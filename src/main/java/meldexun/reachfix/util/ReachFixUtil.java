@@ -27,16 +27,21 @@ public class ReachFixUtil {
 	}
 
 	public static double getBlockReach(EntityPlayer player, EnumHand hand) {
-		double reach = player.getEntityAttribute(EntityPlayer.REACH_DISTANCE).getAttributeValue();
-		if (ReachFix.isSpartanWeaponryInstalled) {
-			reach += SpartanWeaponry.getReachBonus(player, hand);
-		}
-		return reach;
+		return player.getEntityAttribute(EntityPlayer.REACH_DISTANCE).getAttributeValue();
 	}
 
 	public static double getEntityReach(EntityPlayer player, EnumHand hand) {
 		ReachFixConfig config = ReachFixConfig.getInstance();
-		return Math.max(getBlockReach(player, hand) + (player.isCreative() ? (config.entityReachCreative - config.reachCreative) : (config.entityReach - config.reach)), 0.0D);
+		double reach = getBlockReach(player, hand);
+		if (player.isCreative()) {
+			reach += config.entityReachCreative - config.reachCreative;
+		} else {
+			reach += config.entityReach - config.reach;
+		}
+		if (ReachFix.isSpartanWeaponryInstalled) {
+			reach += SpartanWeaponry.getReachBonus(player, hand);
+		}
+		return Math.max(reach, 0.0D);
 	}
 
 }
