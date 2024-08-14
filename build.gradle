@@ -11,12 +11,11 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(8)
 
 configurations {
     atDependencies
-    implementation.extendsFrom(atDependencies)
-
     includedDependencies
-    implementation.extendsFrom(includedDependencies)
-
     buildDependencies
+
+    implementation.extendsFrom(atDependencies)
+    implementation.extendsFrom(includedDependencies)
 }
 
 repositories {
