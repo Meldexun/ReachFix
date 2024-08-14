@@ -71,8 +71,6 @@ public class ReachFixClassTransformer extends HashMapClassNodeClassTransformer i
 		});
 
 		registry.add("com.oblivioussp.spartanweaponry.event.EventHandlerClient", "onMouseEvent", "(Lnet/minecraftforge/client/event/MouseEvent;)V", ClassWriter.COMPUTE_FRAMES, methodNode -> {
-			ASMUtil.LOGGER.info("Transforming method (SpartanWeaponry): EventHandlerClient#onMouseEvent(MouseEvent)");
-
 			methodNode.instructions.insert(new InsnNode(Opcodes.RETURN));
 		});
 		// @formatter:on
