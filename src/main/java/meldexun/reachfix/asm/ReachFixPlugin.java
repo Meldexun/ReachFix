@@ -5,6 +5,7 @@ import java.util.Map;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 
 @IFMLLoadingPlugin.MCVersion("1.12.2")
+@IFMLLoadingPlugin.SortingIndex(1001)
 @IFMLLoadingPlugin.TransformerExclusions({ "meldexun.asmutil2", "meldexun.reachfix.asm" })
 public class ReachFixPlugin implements IFMLLoadingPlugin {
 
