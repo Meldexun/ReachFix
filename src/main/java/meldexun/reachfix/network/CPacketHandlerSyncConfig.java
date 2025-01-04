@@ -1,5 +1,6 @@
 package meldexun.reachfix.network;
 
+import io.netty.buffer.ByteBuf;
 import meldexun.configutil.ConfigUtil;
 import meldexun.reachfix.ReachFix;
 import meldexun.reachfix.config.ReachFixConfig;
@@ -12,25 +13,27 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class CPacketHandlerSyncConfig implements IMessageHandler<SPacketSyncConfig, IMessage> {
 
-	@Override
-	public IMessage onMessage(SPacketSyncConfig message, MessageContext ctx) {
-		FMLCommonHandler.instance().getWorldThread(ctx.netHandler).addScheduledTask(() -> {
-			try {
-				ConfigUtil.readServerSettings(ReachFixConfig.SLAVE_CONFIG, message.getBuffer());
-			} catch (ReflectiveOperationException e) {
-				ReachFix.LOGGER.error("Failed to read server config", e);
-			}
-			ReachFixUtil.updateBaseReachModifier(getPlayer());
-		});
-		return null;
-	}
+    @Override
+    public @Nullable IMessage onMessage(@NotNull SPacketSyncConfig message, @NotNull MessageContext ctx) {
+        FMLCommonHandler.instance().getWorldThread(ctx.netHandler).addScheduledTask(() -> {
+            try {
+                ByteBuf buffer = message.getBuffer();
+                ConfigUtil.readServerSettings(ReachFixConfig.SLAVE_CONFIG, buffer);
+            } catch (ReflectiveOperationException e) {
+                ReachFix.LOGGER.error("Failed to read server config", e);
+            }
+            ReachFixUtil.updateBaseReachModifier(getPlayer());
+        });
+        return null;
+    }
 
-	@SideOnly(Side.CLIENT)
-	private static EntityPlayer getPlayer() {
-		return Minecraft.getMinecraft().player;
-	}
-
+    @SideOnly(Side.CLIENT)
+    private static EntityPlayer getPlayer() {
+        return Minecraft.getMinecraft().player;
+    }
 }

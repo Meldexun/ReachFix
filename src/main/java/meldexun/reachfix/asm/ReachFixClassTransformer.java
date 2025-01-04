@@ -1,19 +1,6 @@
 package meldexun.reachfix.asm;
 
-import java.lang.reflect.Field;
-
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.FieldInsnNode;
-import org.objectweb.asm.tree.InsnNode;
-import org.objectweb.asm.tree.JumpInsnNode;
-import org.objectweb.asm.tree.LabelNode;
-import org.objectweb.asm.tree.MethodInsnNode;
-import org.objectweb.asm.tree.VarInsnNode;
-
 import com.google.common.collect.BiMap;
-
 import meldexun.asmutil2.ASMUtil;
 import meldexun.asmutil2.HashMapClassNodeClassTransformer;
 import meldexun.asmutil2.IClassTransformerRegistry;
@@ -21,27 +8,35 @@ import meldexun.asmutil2.NonLoadingClassWriter;
 import meldexun.asmutil2.reader.ClassUtil;
 import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
+import org.jetbrains.annotations.NotNull;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.tree.*;
+
+import java.lang.reflect.Field;
 
 public class ReachFixClassTransformer extends HashMapClassNodeClassTransformer implements IClassTransformer {
 
-	private static final ClassUtil.Configuration REMAPPING_CONFIGURATION;
-	static {
-		try {
-			Field f = FMLDeobfuscatingRemapper.class.getDeclaredField("classNameBiMap");
-			f.setAccessible(true);
-			@SuppressWarnings("unchecked")
-			BiMap<String, String> classNameBiMap = (BiMap<String, String>) f.get(FMLDeobfuscatingRemapper.INSTANCE);
-			REMAPPING_CONFIGURATION = new ClassUtil.Configuration(ReachFixClassTransformer.class.getClassLoader(), classNameBiMap.inverse(), classNameBiMap);
-		} catch (ReflectiveOperationException e) {
-			throw new UnsupportedOperationException(e);
-		}
-	}
+    private static final ClassUtil.@NotNull Configuration REMAPPING_CONFIGURATION;
 
-	@Override
-	protected void registerTransformers(IClassTransformerRegistry registry) {
-		// @formatter:off
+    static {
+        try {
+            @NotNull Field field = FMLDeobfuscatingRemapper.class.getDeclaredField("classNameBiMap");
+            field.setAccessible(true);
+            @SuppressWarnings("unchecked")
+            BiMap<String, String> classNameBiMap = (BiMap<String, String>) field.get(FMLDeobfuscatingRemapper.INSTANCE);
+            REMAPPING_CONFIGURATION = new ClassUtil.Configuration(ReachFixClassTransformer.class.getClassLoader(), classNameBiMap.inverse(), classNameBiMap);
+        } catch (ReflectiveOperationException e) {
+            throw new UnsupportedOperationException(e);
+        }
+    }
+
+    @Override
+    protected void registerTransformers(@NotNull IClassTransformerRegistry registry) {
+        // @formatter:off
 		registry.add("net.minecraft.client.renderer.EntityRenderer", "getMouseOver", "func_78473_a", "(F)V", ClassWriter.COMPUTE_FRAMES, methodNode -> {
-			LabelNode label = new LabelNode();
+			@NotNull LabelNode label = new LabelNode();
+
 			methodNode.instructions.insert(ASMUtil.listOf(
 				new VarInsnNode(Opcodes.FLOAD, 1),
 				new MethodInsnNode(Opcodes.INVOKESTATIC, "meldexun/reachfix/hook/client/EntityRendererHook", "getMouseOver", "(F)V", false),
@@ -51,6 +46,7 @@ public class ReachFixClassTransformer extends HashMapClassNodeClassTransformer i
 				label
 			));
 		});
+
 		registry.add("net.minecraft.network.NetHandlerPlayServer", "processUseEntity", "func_147340_a", "(Lnet/minecraft/network/play/client/CPacketUseEntity;)V", ClassWriter.COMPUTE_FRAMES, methodNode -> {
 			AbstractInsnNode targetNode1 = ASMUtil.first(methodNode).methodInsn(Opcodes.INVOKEVIRTUAL, "net/minecraft/entity/player/EntityPlayerMP", "canEntityBeSeen", "func_70685_l", "(Lnet/minecraft/entity/Entity;)Z").find();
 			targetNode1 = ASMUtil.prev(targetNode1).type(LabelNode.class).find();
@@ -66,6 +62,7 @@ public class ReachFixClassTransformer extends HashMapClassNodeClassTransformer i
 				new InsnNode(Opcodes.RETURN)
 			));
 		});
+
 		registry.add("net.minecraft.network.NetHandlerPlayServer", "processPlayerDigging", "func_147345_a", "(Lnet/minecraft/network/play/client/CPacketPlayerDigging;)V", 0, methodNode -> {
 			AbstractInsnNode targetNode1 = ASMUtil.first(methodNode).ldcInsn(1.5D).find();
 
@@ -75,6 +72,7 @@ public class ReachFixClassTransformer extends HashMapClassNodeClassTransformer i
 				new InsnNode(Opcodes.DADD)
 			));
 		});
+
 		registry.add("net.minecraft.client.network.NetworkPlayerInfo", "setGameType", "func_178839_a", "(Lnet/minecraft/world/GameType;)V", 0, methodNode -> {
 			methodNode.instructions.insert(ASMUtil.listOf(
 				new VarInsnNode(Opcodes.ALOAD, 0),
@@ -82,6 +80,7 @@ public class ReachFixClassTransformer extends HashMapClassNodeClassTransformer i
 				new MethodInsnNode(Opcodes.INVOKESTATIC, "meldexun/reachfix/hook/client/NetworkPlayerInfoHook", "onUpdateGameMode", "(Lnet/minecraft/client/network/NetworkPlayerInfo;Lnet/minecraft/world/GameType;)V", false)
 			));
 		});
+
 		registry.add("net.minecraft.server.management.PlayerInteractionManager", "setGameType", "func_73076_a", "(Lnet/minecraft/world/GameType;)V", 0, methodNode -> {
 			methodNode.instructions.insert(ASMUtil.listOf(
 				new VarInsnNode(Opcodes.ALOAD, 0),
@@ -94,16 +93,15 @@ public class ReachFixClassTransformer extends HashMapClassNodeClassTransformer i
 			methodNode.instructions.insert(new InsnNode(Opcodes.RETURN));
 		});
 		// @formatter:on
-	}
+    }
 
-	@Override
-	protected ClassWriter createClassWriter(int flags) {
-		return new NonLoadingClassWriter(flags) {
-			@Override
-			protected ClassUtil.Configuration getClassUtilConfiguration() {
-				return REMAPPING_CONFIGURATION;
-			}
-		};
-	}
-
+    @Override
+    protected @NotNull ClassWriter createClassWriter(int flags) {
+        return new NonLoadingClassWriter(flags) {
+            @Override
+            protected ClassUtil.@NotNull Configuration getClassUtilConfiguration() {
+                return REMAPPING_CONFIGURATION;
+            }
+        };
+    }
 }

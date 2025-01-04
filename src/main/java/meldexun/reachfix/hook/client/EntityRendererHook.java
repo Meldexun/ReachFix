@@ -1,9 +1,6 @@
 package meldexun.reachfix.hook.client;
 
-import java.util.List;
-
-import javax.annotation.Nullable;
-
+import lombok.Data;
 import meldexun.reachfix.config.ReachFixConfig;
 import meldexun.reachfix.util.BoundingBoxUtil;
 import meldexun.reachfix.util.ReachFixUtil;
@@ -15,112 +12,135 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+
+@Data
 public class EntityRendererHook {
 
-	public static void getMouseOver(float partialTicks) {
-		Minecraft mc = Minecraft.getMinecraft();
-		Entity viewEntity = mc.getRenderViewEntity();
+    public static void getMouseOver(float partialTicks) {
+        @NotNull Minecraft mc = Minecraft.getMinecraft();
+        @Nullable Entity viewEntity = mc.getRenderViewEntity();
 
-		if (viewEntity == null) {
-			return;
-		}
-		if (mc.player == null) {
-			return;
-		}
-		if (mc.world == null) {
-			return;
-		}
+        if (viewEntity == null) {
+            return;
+        }
 
-		mc.profiler.startSection("pick");
-		mc.objectMouseOver = pointedObject(viewEntity, mc.player, EnumHand.MAIN_HAND, mc.world, partialTicks);
-		mc.entityRenderer.pointedEntity = mc.objectMouseOver.entityHit;
-		mc.pointedEntity = mc.objectMouseOver.entityHit;
-		mc.profiler.endSection();
-	}
+        if (mc.player == null) {
+            return;
+        }
 
-	public static RayTraceResult pointedObject(Entity viewEntity, EntityPlayer player, EnumHand hand, World world, float partialTicks) {
-		Vec3d start = viewEntity.getPositionEyes(partialTicks);
-		Vec3d look = viewEntity.getLook(partialTicks);
-		double blockReach = ReachFixUtil.getBlockReach(player, hand);
-		double entityReach = ReachFixUtil.getEntityReach(player, hand);
-		Vec3d end = start.add(look.scale(Math.max(blockReach, entityReach)));
-		RayTraceResult pointedBlock = world.rayTraceBlocks(start, end, false, false, false);
-		RayTraceResult pointedEntity = getPointedEntity(viewEntity, world, start, end, partialTicks);
+        if (mc.world == null) {
+            return;
+        }
 
-		if (!isNullOrMiss(pointedBlock)) {
-			if (!isNullOrMiss(pointedEntity)) {
-				double distBlock = start.squareDistanceTo(pointedBlock.hitVec);
-				double distEntity = start.squareDistanceTo(pointedEntity.hitVec);
-				if (distBlock < distEntity) {
-					if (distBlock < blockReach * blockReach) {
-						return pointedBlock;
-					}
-				} else if (distEntity < entityReach * entityReach) {
-					return pointedEntity;
-				}
-			} else if (start.squareDistanceTo(pointedBlock.hitVec) < blockReach * blockReach) {
-				return pointedBlock;
-			}
-		} else if (!isNullOrMiss(pointedEntity) && start.squareDistanceTo(pointedEntity.hitVec) < entityReach * entityReach) {
-			return pointedEntity;
-		}
+        mc.profiler.startSection("pick");
+        mc.objectMouseOver = pointedObject(viewEntity, mc.player, EnumHand.MAIN_HAND, mc.world, partialTicks);
 
-		return new RayTraceResult(Type.MISS, end, null, new BlockPos(end));
-	}
+        // Potentially fixes an NPE.
+        if (mc.objectMouseOver.entityHit == null) {
+            mc.profiler.endSection();
+            return;
+        }
 
-	@Nullable
-	private static RayTraceResult getPointedEntity(Entity viewEntity, World world, Vec3d start, Vec3d end, float partialTicks) {
-		AxisAlignedBB aabb = new AxisAlignedBB(start, end).grow(1.0D);
-		Entity lowestRidingEntity = viewEntity.getLowestRidingEntity();
-		List<Entity> possibleEntities = world.getEntitiesInAABBexcluding(viewEntity, aabb, entity -> {
-			if (!EntitySelectors.NOT_SPECTATING.apply(entity)) {
-				return false;
-			}
-			return entity.canBeCollidedWith();
-		});
+        mc.entityRenderer.pointedEntity = mc.objectMouseOver.entityHit;
+        mc.pointedEntity = mc.objectMouseOver.entityHit;
+        mc.profiler.endSection();
+    }
 
-		RayTraceResult result = null;
-		Entity pointedEntity = null;
-		double min = Double.MAX_VALUE;
-		for (Entity entity : possibleEntities) {
-			AxisAlignedBB entityAabb = BoundingBoxUtil.getInteractionBoundingBox(entity, partialTicks);
-			if (lowestRidingEntity == entity.getLowestRidingEntity() && !entity.canRiderInteract()) {
-				if (ReachFixConfig.getInstance().forceInteractionInsideVehicles && entityAabb.contains(start)) {
-					return new RayTraceResult(entity, start);
-				}
-				continue;
-			}
+    public static @NotNull RayTraceResult pointedObject(@NotNull Entity viewEntity, @NotNull EntityPlayer player,
+                                                        @NotNull EnumHand hand, @NotNull World world, float partialTicks) {
+        @NotNull Vec3d start = viewEntity.getPositionEyes(partialTicks);
+        @NotNull Vec3d look = viewEntity.getLook(partialTicks);
 
-			if (entityAabb.contains(start)) {
-				return new RayTraceResult(entity, start);
-			}
+        double blockReach = ReachFixUtil.getBlockReach(player, hand);
+        double entityReach = ReachFixUtil.getEntityReach(player, hand);
 
-			RayTraceResult rtr = entityAabb.calculateIntercept(start, end);
-			if (isNullOrMiss(rtr)) {
-				continue;
-			}
+        @NotNull Vec3d scale = look.scale(Math.max(blockReach, entityReach));
+        @NotNull Vec3d end = start.add(scale);
 
-			double dist = start.squareDistanceTo(rtr.hitVec);
-			if (dist < min) {
-				result = rtr;
-				pointedEntity = entity;
-				min = dist;
-			}
-		}
+        @Nullable RayTraceResult pointedBlock = world.rayTraceBlocks(start, end, false, false, false);
+        @Nullable RayTraceResult pointedEntity = getPointedEntity(viewEntity, world, start, end, partialTicks);
 
-		if (isNullOrMiss(result)) {
-			return null;
-		}
+        if (!isNullOrMiss(pointedBlock)) {
+            if (!isNullOrMiss(pointedEntity)) {
+                double distBlock = start.squareDistanceTo(pointedBlock.hitVec);
+                double distEntity = start.squareDistanceTo(pointedEntity.hitVec);
 
-		return new RayTraceResult(pointedEntity, result.hitVec);
-	}
+                if (distBlock < distEntity) {
+                    if (distBlock < blockReach * blockReach) {
+                        return pointedBlock;
+                    }
+                } else if (distEntity < entityReach * entityReach) {
+                    return pointedEntity;
+                }
+            } else if (start.squareDistanceTo(pointedBlock.hitVec) < blockReach * blockReach) {
+                return pointedBlock;
+            }
+        } else if (!isNullOrMiss(pointedEntity) && start.squareDistanceTo(pointedEntity.hitVec) < entityReach * entityReach) {
+            return pointedEntity;
+        }
+        return new RayTraceResult(RayTraceResult.Type.MISS, end, null, new BlockPos(end));
+    }
 
-	private static boolean isNullOrMiss(RayTraceResult rayTraceResult) {
-		return rayTraceResult == null || rayTraceResult.typeOfHit == Type.MISS;
-	}
+    private static @Nullable RayTraceResult getPointedEntity(@NotNull Entity viewEntity, @NotNull World world,
+                                                             @NotNull Vec3d start, @NotNull Vec3d end,
+                                                             float partialTicks) {
+        @NotNull AxisAlignedBB aabb = new AxisAlignedBB(start, end).grow(1.0D);
+        @NotNull Entity lowestRidingEntity = viewEntity.getLowestRidingEntity();
 
+        @NotNull List<Entity> possibleEntities = world.getEntitiesInAABBexcluding(viewEntity, aabb, entity -> {
+            if (!EntitySelectors.NOT_SPECTATING.apply(entity)) {
+                return false;
+            }
+            return entity.canBeCollidedWith();
+        });
+
+        @Nullable RayTraceResult result = null;
+        @Nullable Entity pointedEntity = null;
+
+        double min = Double.MAX_VALUE;
+
+        for (@NotNull Entity entity : possibleEntities) {
+            @NotNull AxisAlignedBB entityAabb = BoundingBoxUtil.getInteractionBoundingBox(entity, partialTicks);
+
+            if (lowestRidingEntity == entity.getLowestRidingEntity() && !entity.canRiderInteract()) {
+                if (ReachFixConfig.getInstance().forceInteractionInsideVehicles && entityAabb.contains(start)) {
+                    return new RayTraceResult(entity, start);
+                }
+                continue;
+            }
+
+            if (entityAabb.contains(start)) {
+                return new RayTraceResult(entity, start);
+            }
+
+            @Nullable RayTraceResult rtr = entityAabb.calculateIntercept(start, end);
+
+            if (isNullOrMiss(rtr)) {
+                continue;
+            }
+
+            double dist = start.squareDistanceTo(rtr.hitVec);
+
+            if (dist < min) {
+                result = rtr;
+                pointedEntity = entity;
+                min = dist;
+            }
+        }
+
+        if (isNullOrMiss(result)) {
+            return null;
+        }
+        return new RayTraceResult(pointedEntity, result.hitVec);
+    }
+
+    private static boolean isNullOrMiss(@Nullable RayTraceResult result) {
+        return result == null || result.typeOfHit == RayTraceResult.Type.MISS;
+    }
 }

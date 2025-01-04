@@ -1,37 +1,37 @@
 package meldexun.reachfix.asm;
 
-import java.util.Map;
-
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Map;
 
 @IFMLLoadingPlugin.MCVersion("1.12.2")
 @IFMLLoadingPlugin.SortingIndex(1001)
-@IFMLLoadingPlugin.TransformerExclusions({ "meldexun.asmutil2", "meldexun.reachfix.asm" })
+@IFMLLoadingPlugin.TransformerExclusions({"meldexun.asmutil2", "meldexun.reachfix.asm"})
 public class ReachFixPlugin implements IFMLLoadingPlugin {
 
-	@Override
-	public String[] getASMTransformerClass() {
-		return new String[] { "meldexun.reachfix.asm.ReachFixClassTransformer" };
-	}
+    @Override
+    public String @NotNull [] getASMTransformerClass() {
+        return new String[]{"meldexun.reachfix.asm.ReachFixClassTransformer"};
+    }
 
-	@Override
-	public String getModContainerClass() {
-		return null;
-	}
+    @Override
+    public @Nullable String getModContainerClass() {
+        return null;
+    }
 
-	@Override
-	public String getSetupClass() {
-		return null;
-	}
+    @Override
+    public String getSetupClass() {
+        return null;
+    }
 
-	@Override
-	public void injectData(Map<String, Object> data) {
+    @Override
+    public void injectData(Map<String, Object> data) {
+    }
 
-	}
-
-	@Override
-	public String getAccessTransformerClass() {
-		return null;
-	}
-
+    @Override
+    public @Nullable String getAccessTransformerClass() {
+        return null;
+    }
 }

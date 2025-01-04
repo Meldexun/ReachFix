@@ -3,7 +3,7 @@ plugins {
     id 'net.minecraftforge.gradle' version "${forge_gradle_version}"
 }
 
-version = "${mod_stage}" != "" ? "${mc_version}-${mod_version}-${mod_stage}" : "${mc_version}-${mod_version}"
+version = "${mod_stage}" != '' ? "${mc_version}-${mod_version}-${mod_stage}" : "${mc_version}-${mod_version}"
 group = "meldexun.${mod_id}"
 archivesBaseName = "${mod_name}"
 
@@ -26,7 +26,7 @@ repositories {
             artifact '[organisation]/[module]/releases/download/v[revision]/[module]-[revision].[ext]'
         }
 
-        metadataSources { artifact() } 
+        metadataSources { artifact() }
     }
 
     maven { url = 'https://www.cursemaven.com' }
@@ -38,15 +38,24 @@ dependencies {
     includedDependencies 'meldexun:ConfigUtil:1.0.0@jar'
 
     buildDependencies 'curse.maven:SpartanWeaponry-278141:3634012'
+
+    // JetBrains Annotations - for code inspection and documentation
+    // https://mvnrepository.com/artifact/org.jetbrains/annotations
+    compileOnly group: 'org.jetbrains', name: 'annotations', version: '26.0.1'
+
+    // Lombok - for reducing boilerplate code
+    // https://projectlombok.org
+    compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.36'
+    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.36'
 }
 
 minecraft {
     mappings channel: "${mappings_channel}", version: "${mappings_version}"
 
     accessTransformer = files(
-        'src/main/resources/META-INF/accesstransformer.cfg',
-        files(configurations.atDependencies.collect { zipTree(it) }).getAsFileTree().matching {
-        }
+            'src/main/resources/META-INF/accesstransformer.cfg',
+            files(configurations.atDependencies.collect { zipTree(it) }).getAsFileTree().matching {
+            }
     )
 
     runs {
@@ -69,7 +78,7 @@ minecraft {
 }
 
 processResources {
-    inputs.property('version', "${mod_stage}" != "" ? "${mod_version}-${mod_stage}" : "${mod_version}")
+    inputs.property('version', "${mod_stage}" != '' ? "${mod_version}-${mod_stage}" : "${mod_version}")
 
     filesMatching('mcmod.info') {
         expand version: inputs.properties.get('version')
