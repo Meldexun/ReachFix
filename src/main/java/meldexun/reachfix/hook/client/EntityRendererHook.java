@@ -36,9 +36,11 @@ public class EntityRendererHook {
 		}
 
 		mc.profiler.startSection("pick");
-		mc.objectMouseOver = pointedObject(viewEntity, mc.player, EnumHand.MAIN_HAND, mc.world, partialTicks);
-		mc.entityRenderer.pointedEntity = mc.objectMouseOver.entityHit;
-		mc.pointedEntity = mc.objectMouseOver.entityHit;
+		// Pixelmon modifies objectMouseOver from another thread -> store result in local variable
+		RayTraceResult target = pointedObject(viewEntity, mc.player, EnumHand.MAIN_HAND, mc.world, partialTicks);
+		mc.objectMouseOver = target;
+		mc.entityRenderer.pointedEntity = target.entityHit;
+		mc.pointedEntity = target.entityHit;
 		mc.profiler.endSection();
 	}
 
