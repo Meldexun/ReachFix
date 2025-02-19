@@ -40,7 +40,7 @@ public class ReachFixClassTransformer extends HashMapClassNodeClassTransformer i
 	@Override
 	protected void registerTransformers(IClassTransformerRegistry registry) {
 		// @formatter:off
-		registry.add("net.minecraft.client.renderer.EntityRenderer", "getMouseOver", "func_78473_a", "(F)V", ClassWriter.COMPUTE_FRAMES, methodNode -> {
+		registry.addObf("net.minecraft.client.renderer.EntityRenderer", "getMouseOver", "func_78473_a", "(F)V", ClassWriter.COMPUTE_FRAMES, methodNode -> {
 			LabelNode label = new LabelNode();
 			methodNode.instructions.insert(ASMUtil.listOf(
 				new VarInsnNode(Opcodes.FLOAD, 1),
@@ -51,11 +51,11 @@ public class ReachFixClassTransformer extends HashMapClassNodeClassTransformer i
 				label
 			));
 		});
-		registry.add("net.minecraft.network.NetHandlerPlayServer", "processUseEntity", "func_147340_a", "(Lnet/minecraft/network/play/client/CPacketUseEntity;)V", ClassWriter.COMPUTE_FRAMES, methodNode -> {
-			AbstractInsnNode targetNode1 = ASMUtil.first(methodNode).methodInsn(Opcodes.INVOKEVIRTUAL, "net/minecraft/entity/player/EntityPlayerMP", "canEntityBeSeen", "func_70685_l", "(Lnet/minecraft/entity/Entity;)Z").find();
-			targetNode1 = ASMUtil.prev(targetNode1).type(LabelNode.class).find();
-			AbstractInsnNode popNode12 = ASMUtil.first(methodNode).methodInsn(Opcodes.INVOKEVIRTUAL, "net/minecraft/entity/player/EntityPlayerMP", "getDistanceSq", "func_70068_e", "(Lnet/minecraft/entity/Entity;)D").find();
-			popNode12 = ASMUtil.next(popNode12).type(LabelNode.class).find();
+		registry.addObf("net.minecraft.network.NetHandlerPlayServer", "processUseEntity", "func_147340_a", "(Lnet/minecraft/network/play/client/CPacketUseEntity;)V", ClassWriter.COMPUTE_FRAMES, methodNode -> {
+			AbstractInsnNode targetNode1 = ASMUtil.first(methodNode).opcode(Opcodes.INVOKEVIRTUAL).methodInsnObf("net/minecraft/entity/player/EntityPlayerMP", "canEntityBeSeen", "func_70685_l", "(Lnet/minecraft/entity/Entity;)Z").find();
+			targetNode1 = ASMUtil.prev(methodNode, targetNode1).type(LabelNode.class).find();
+			AbstractInsnNode popNode12 = ASMUtil.first(methodNode).opcode(Opcodes.INVOKEVIRTUAL).methodInsnObf("net/minecraft/entity/player/EntityPlayerMP", "getDistanceSq", "func_70068_e", "(Lnet/minecraft/entity/Entity;)D").find();
+			popNode12 = ASMUtil.next(methodNode, popNode12).type(LabelNode.class).find();
 
 			methodNode.instructions.insert(targetNode1, ASMUtil.listOf(
 				new VarInsnNode(Opcodes.ALOAD, 0),
@@ -66,7 +66,7 @@ public class ReachFixClassTransformer extends HashMapClassNodeClassTransformer i
 				new InsnNode(Opcodes.RETURN)
 			));
 		});
-		registry.add("net.minecraft.network.NetHandlerPlayServer", "processPlayerDigging", "func_147345_a", "(Lnet/minecraft/network/play/client/CPacketPlayerDigging;)V", 0, methodNode -> {
+		registry.addObf("net.minecraft.network.NetHandlerPlayServer", "processPlayerDigging", "func_147345_a", "(Lnet/minecraft/network/play/client/CPacketPlayerDigging;)V", 0, methodNode -> {
 			AbstractInsnNode targetNode1 = ASMUtil.first(methodNode).ldcInsn(1.5D).find();
 
 			methodNode.instructions.insert(targetNode1, ASMUtil.listOf(
@@ -75,14 +75,14 @@ public class ReachFixClassTransformer extends HashMapClassNodeClassTransformer i
 				new InsnNode(Opcodes.DADD)
 			));
 		});
-		registry.add("net.minecraft.client.network.NetworkPlayerInfo", "setGameType", "func_178839_a", "(Lnet/minecraft/world/GameType;)V", 0, methodNode -> {
+		registry.addObf("net.minecraft.client.network.NetworkPlayerInfo", "setGameType", "func_178839_a", "(Lnet/minecraft/world/GameType;)V", 0, methodNode -> {
 			methodNode.instructions.insert(ASMUtil.listOf(
 				new VarInsnNode(Opcodes.ALOAD, 0),
 				new VarInsnNode(Opcodes.ALOAD, 1),
 				new MethodInsnNode(Opcodes.INVOKESTATIC, "meldexun/reachfix/hook/client/NetworkPlayerInfoHook", "onUpdateGameMode", "(Lnet/minecraft/client/network/NetworkPlayerInfo;Lnet/minecraft/world/GameType;)V", false)
 			));
 		});
-		registry.add("net.minecraft.server.management.PlayerInteractionManager", "setGameType", "func_73076_a", "(Lnet/minecraft/world/GameType;)V", 0, methodNode -> {
+		registry.addObf("net.minecraft.server.management.PlayerInteractionManager", "setGameType", "func_73076_a", "(Lnet/minecraft/world/GameType;)V", 0, methodNode -> {
 			methodNode.instructions.insert(ASMUtil.listOf(
 				new VarInsnNode(Opcodes.ALOAD, 0),
 				new VarInsnNode(Opcodes.ALOAD, 1),
