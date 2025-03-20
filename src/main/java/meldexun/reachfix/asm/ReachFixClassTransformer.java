@@ -1,15 +1,6 @@
 package meldexun.reachfix.asm;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UncheckedIOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.lang.reflect.Field;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -21,11 +12,8 @@ import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
 
-import LZMA.LzmaInputStream;
 import meldexun.asmutil2.ASMUtil;
 import meldexun.asmutil2.HashMapClassNodeClassTransformer;
 import meldexun.asmutil2.IClassTransformerRegistry;
@@ -33,24 +21,21 @@ import meldexun.asmutil2.NonLoadingClassWriter;
 import meldexun.asmutil2.reader.ClassUtil;
 import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraft.launchwrapper.Launch;
+import net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
 
 public class ReachFixClassTransformer extends HashMapClassNodeClassTransformer implements IClassTransformer {
 
 	private static final ClassUtil REMAPPING_CLASS_UTIL;
 	static {
-		@SuppressWarnings("unchecked")
-		BiMap<String, String> deobfuscationMap = (BiMap<String, String>) Launch.blackboard.computeIfAbsent("ASMUtil_deobfuscationMap", k -> {
-			String gradleStartProp = System.getProperty("net.minecraftforge.gradle.GradleStart.srg.srg-mcp");
-			try (BufferedReader reader = new BufferedReader(new InputStreamReader(Strings.isNullOrEmpty(gradleStartProp) ? new LzmaInputStream(Launch.classLoader.getResourceAsStream("deobfuscation_data-1.12.2.lzma")) : Files.newInputStream(Paths.get(gradleStartProp)), StandardCharsets.UTF_8))) {
-				return reader.lines()
-						.map(Pattern.compile(" *CL: +([^ ]*) +([^ ]*).*")::matcher)
-						.filter(Matcher::matches)
-						.collect(HashBiMap::create, (map, matcher) -> map.put(matcher.group(1), matcher.group(2)), Map::putAll);
-			} catch (IOException e) {
-				throw new UncheckedIOException(e);
-			}
-		});
-		REMAPPING_CLASS_UTIL = ClassUtil.getInstance(new ClassUtil.Configuration(Launch.classLoader, deobfuscationMap.inverse(), deobfuscationMap));
+		try {
+			Field _classNameBiMap = FMLDeobfuscatingRemapper.class.getDeclaredField("classNameBiMap");
+			_classNameBiMap.setAccessible(true);
+			@SuppressWarnings("unchecked")
+			BiMap<String, String> deobfuscationMap = (BiMap<String, String>) _classNameBiMap.get(FMLDeobfuscatingRemapper.INSTANCE);
+			REMAPPING_CLASS_UTIL = ClassUtil.getInstance(new ClassUtil.Configuration(Launch.classLoader, deobfuscationMap.inverse(), deobfuscationMap));
+		} catch (ReflectiveOperationException e) {
+			throw new UnsupportedOperationException(e);
+		}
 	}
 
 	@Override
