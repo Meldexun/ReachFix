@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import meldexun.reachfix.ReachFix;
 import meldexun.reachfix.config.ReachFixConfig;
+import meldexun.reachfix.integration.LycanitesMobs;
 import meldexun.reachfix.integration.SpartanWeaponry;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
@@ -38,6 +39,9 @@ public class ReachFixUtil {
 			reach += config.entityReachCreative - config.reachCreative;
 		} else {
 			reach += config.entityReach - config.reach;
+		}
+		if (ReachFix.isLycanitesMobsInstalled) {
+			reach += LycanitesMobs.getReachBonus(player, hand);
 		}
 		if (ReachFix.isSpartanWeaponryInstalled) {
 			reach += SpartanWeaponry.getReachBonus(player, hand);

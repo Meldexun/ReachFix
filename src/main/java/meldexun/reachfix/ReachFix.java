@@ -37,6 +37,7 @@ public class ReachFix {
 	public static final String MODID = "reachfix";
 	public static final Logger LOGGER = LogManager.getLogger(MODID);
 	public static final SimpleNetworkWrapper NETWORK = NetworkRegistry.INSTANCE.newSimpleChannel(MODID);
+	public static boolean isLycanitesMobsInstalled;
 	public static boolean isSpartanWeaponryInstalled;
 
 	@EventHandler
@@ -47,6 +48,7 @@ public class ReachFix {
 
 	@EventHandler
 	public void onFMLPostInitializationEvent(FMLPostInitializationEvent event) {
+		isLycanitesMobsInstalled = Loader.isModLoaded("lycanitesmobs");
 		isSpartanWeaponryInstalled = Loader.isModLoaded("spartanweaponry");
 	}
 
