@@ -37,6 +37,7 @@ dependencies {
     includedDependencies 'meldexun:ASMUtil:2.8.0@jar'
     includedDependencies 'meldexun:ConfigUtil:1.0.0@jar'
 
+    buildDependencies 'curse.maven:lycanites-mobs-224770:5750564'
     buildDependencies 'curse.maven:SpartanWeaponry-278141:3634012'
 }
 
